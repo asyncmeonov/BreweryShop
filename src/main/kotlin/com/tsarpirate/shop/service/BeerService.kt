@@ -1,25 +1,50 @@
 package com.tsarpirate.shop.service
 
 import com.tsarpirate.shop.model.Beer
+import com.tsarpirate.shop.model.OrderBeer
 import com.tsarpirate.shop.repository.BeerRepository
 import org.springframework.stereotype.Service
+import java.util.UUID
 
 @Service
 class BeerService(private val beerRepo: BeerRepository) {
 
-    fun getBeers(): List<Beer>{
-        return beerRepo.findAll()
+    //Admin operation
+    fun getBeers(): List<Beer> = beerRepo.findAll()
+
+    fun getBeerById(id: UUID) : Beer? =  beerRepo.findById(id).orElseGet(null)
+
+    // Returns a beer with a single price model based on the license
+    // Note: it is important that two licenses named the same don't exist
+    fun getBeersForLicense(licenseType: String): List<OrderBeer> {
+        val beerModels =
+            getBeers().toMutableList()//.takeWhile { it.priceModels.any { pModel -> pModel.licenseType == licenseType } }
+        val licensedBeers = beerModels.takeWhile { it.priceModels.any { pModel -> pModel.licenseType == licenseType } }
+        beerModels.removeAll(licensedBeers)
+        val defaultBeers = beerModels.filter { it.isAvailableByDefault }
+        val beers = licensedBeers + defaultBeers
+
+        return beers.map {
+            OrderBeer(
+                it.id,
+                it.amountAvailable,
+                it.name,
+                it.description,
+                if (it.priceModels.isEmpty()) it.defaultPrice else it.priceModels.first { beer -> beer.licenseType == licenseType }.price,
+                it.size
+            )
+        }
     }
 
-    fun getBeersForLicense(licenseType:String): List<Beer>{
-        return getBeers().takeWhile { it.priceModels.any { pModel -> pModel.licenseType == licenseType} }
-    }
+    //Admin operation
+    fun addBeer(beer: Beer) = beerRepo.insert(beer)
 
-    fun addBeer(beer:Beer) {
-        beerRepo.insert(beer)
-    }
 
-    fun updateBeer(beer:Beer) {
-         throw NotImplementedError("TBD")
+    //Admin operation
+    fun updateBeer(beer: Beer) = beerRepo.save(beer)
+
+    //Admin operation
+    fun removeBeer(uuid: UUID) {
+        throw NotImplementedError("TBD")
     }
 }

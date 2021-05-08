@@ -1,7 +1,8 @@
 package com.tsarpirate.shop.repository
 
-import com.tsarpirate.shop.model.Beer
+
+import com.tsarpirate.shop.model.Order
 import org.springframework.data.mongodb.repository.MongoRepository
 import java.util.UUID
 
-interface BeerRepository : MongoRepository<Beer, UUID>
+interface OrderRepository: MongoRepository<Order, UUID>

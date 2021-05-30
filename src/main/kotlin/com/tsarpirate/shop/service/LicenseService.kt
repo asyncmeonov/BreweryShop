@@ -3,6 +3,7 @@ package com.tsarpirate.shop.service
 import com.tsarpirate.shop.model.License
 import com.tsarpirate.shop.repository.LicenseRepository
 import org.slf4j.LoggerFactory
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import java.nio.ByteBuffer
 import java.time.LocalDate
@@ -16,7 +17,7 @@ class LicenseService(private val licenseRepo: LicenseRepository) {
 
     fun getLicenses(): List<License> = licenseRepo.findAll()
 
-    fun getLicenseByValue(license: String): License? = licenseRepo.findById(license).orElse(null)
+    fun getLicenseByValue(license: String): License? = licenseRepo.findByIdOrNull(license)
 
     fun addLicense(type: String, expiryDate: LocalDate? = null, retries: Int = 3): String {
         if (retries == 0) {

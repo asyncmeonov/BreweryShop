@@ -1,5 +1,6 @@
 package com.tsarpirate.shop.model
 
+import java.net.URL
 import java.util.UUID
 
 /**
@@ -17,6 +18,7 @@ data class OrderBeer(val id: UUID,
                      val amountAvailable: Int,
                      val name: String,
                      val description: String,
+                     val label: URL,
                      val price: Int,
                      val size: Int,
                      val amount: Int = 0)

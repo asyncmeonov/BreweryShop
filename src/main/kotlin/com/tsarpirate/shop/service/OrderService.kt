@@ -2,6 +2,7 @@ package com.tsarpirate.shop.service
 
 import com.tsarpirate.shop.model.Order
 import com.tsarpirate.shop.repository.OrderRepository
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import java.util.UUID
 
@@ -10,7 +11,7 @@ class OrderService(private val orderRepo: OrderRepository) {
 
     fun getOrders(): List<Order> = orderRepo.findAll()
 
-    fun getOrder(id:UUID): Order? = orderRepo.findById(id).orElseGet(null)
+    fun getOrder(id:UUID): Order? = orderRepo.findByIdOrNull(id)
 
     fun addOrder(order: Order) = orderRepo.insert(order)
 

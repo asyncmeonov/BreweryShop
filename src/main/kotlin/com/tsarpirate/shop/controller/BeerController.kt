@@ -49,8 +49,11 @@ class BeerController(val beerService: BeerService, val licenseService: LicenseSe
     }
 
     @PutMapping("/beers")
-    fun updateBeer(@RequestBody beer: Beer) {
+    fun updateBeer(@RequestBody beer: Beer): ResponseEntity<String> {
+        if(beerService.getBeerById(beer.id) == null) return ResponseEntity.badRequest()
+            .body("Could not find ${beer.id} to be updated. Make sure you have included the id field of the beer you want updated. ")
         logger.info("Updating ${beer.name}...")
         beerService.updateBeer(beer)
+        return ResponseEntity.ok("Successfully updated ${beer.name}")
     }
 }

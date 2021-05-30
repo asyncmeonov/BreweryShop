@@ -8,7 +8,6 @@ import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeParseException
 import javax.websocket.server.PathParam
 
-@CrossOrigin(origins = ["http://localhost:3000"])
 @RestController
 class LicenseController(val licenseService: LicenseService) {
 
@@ -23,10 +22,9 @@ class LicenseController(val licenseService: LicenseService) {
         @PathParam("expires") expires: String? = null
     ): String {
         return try {
-            val type = licenseType.toUpperCase()
             val dtf = DateTimeFormatter.ofPattern("dd-MM-yyyy")
             val expiryDate = if (expires != null )LocalDate.parse(expires, dtf) else null
-            licenseService.addLicense(type, expiryDate)
+            licenseService.addLicense(licenseType, expiryDate)
         } catch (ex: DateTimeParseException) {
             "Bad request, expiry date $expires does not follow \"dd-MM-yyyy\" format."
         }

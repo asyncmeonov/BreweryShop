@@ -3,23 +3,23 @@ package com.tsarpirate.shop.service
 import com.tsarpirate.shop.model.Beer
 import com.tsarpirate.shop.model.OrderBeer
 import com.tsarpirate.shop.repository.BeerRepository
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import java.util.UUID
-
 @Service
 class BeerService(private val beerRepo: BeerRepository) {
 
     //Admin operation
     fun getBeers(): List<Beer> = beerRepo.findAll()
 
-    fun getBeerById(id: UUID) : Beer? =  beerRepo.findById(id).orElseGet(null)
+    fun getBeerById(id: UUID) : Beer? = beerRepo.findByIdOrNull(id)
 
     // Returns a beer with a single price model based on the license
     // Note: it is important that two licenses named the same don't exist
     fun getBeersForLicense(licenseType: String): List<OrderBeer> {
         val beerModels =
-            getBeers().toMutableList()//.takeWhile { it.priceModels.any { pModel -> pModel.licenseType == licenseType } }
-        val licensedBeers = beerModels.takeWhile { it.priceModels.any { pModel -> pModel.licenseType == licenseType } }
+            getBeers().toMutableList()
+        val licensedBeers = beerModels.takeWhile { it.priceModels.any { pModel -> pModel.licenseType.equals(licenseType, ignoreCase = true)  } }
         beerModels.removeAll(licensedBeers)
         val defaultBeers = beerModels.filter { it.isAvailableByDefault }
         val beers = licensedBeers + defaultBeers
@@ -30,6 +30,7 @@ class BeerService(private val beerRepo: BeerRepository) {
                 it.amountAvailable,
                 it.name,
                 it.description,
+                it.label,
                 if (it.priceModels.isEmpty()) it.defaultPrice else it.priceModels.first { beer -> beer.licenseType == licenseType }.price,
                 it.size
             )
@@ -48,3 +49,4 @@ class BeerService(private val beerRepo: BeerRepository) {
         throw NotImplementedError("TBD")
     }
 }
+

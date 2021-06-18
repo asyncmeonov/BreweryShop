@@ -48,10 +48,8 @@ class JwtAuthorizationFilter(authManager: AuthenticationManager): BasicAuthentic
                 // new arraylist means authorities //TODO pass authorities
                 return UsernamePasswordAuthenticationToken(user, null, listOf())
             }
-
             return null
         }
-
         return null
     }
 }

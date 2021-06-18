@@ -1,9 +1,14 @@
 package com.tsarpirate.shop.service
 
 import com.tsarpirate.shop.model.License
+import com.tsarpirate.shop.model.UserDetailsLicense
 import com.tsarpirate.shop.repository.LicenseRepository
 import org.slf4j.LoggerFactory
 import org.springframework.data.repository.findByIdOrNull
+import org.springframework.expression.AccessException
+import org.springframework.security.core.userdetails.UserDetails
+import org.springframework.security.core.userdetails.UserDetailsService
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.stereotype.Service
 import java.nio.ByteBuffer
 import java.time.LocalDate
@@ -11,9 +16,14 @@ import java.util.*
 
 
 @Service
-class LicenseService(private val licenseRepo: LicenseRepository) {
+class LicenseService(private val licenseRepo: LicenseRepository) : UserDetailsService {
 
     private val logger = LoggerFactory.getLogger(LicenseService::class.java)
+
+    override fun loadUserByUsername(licenseCode: String): UserDetails? {
+        val license = getLicenseByValue(licenseCode)
+        return license?.let { UserDetailsLicense(it) }
+    }
 
     fun getLicenses(): List<License> = licenseRepo.findAll()
 
@@ -23,11 +33,13 @@ class LicenseService(private val licenseRepo: LicenseRepository) {
         if (retries == 0) {
             throw IllegalStateException("Could not generate $type license. Exceeded max retries.")
         }
-        val license = License(shortUUID(), type, expiryDate)
-        return if (getLicenseByValue(license.license) != null) {
-            logger.warn("$license already exists! Retrying...")
+        val licenseId = shortUUID()
+        return if (getLicenseByValue(licenseId) != null) {
+            logger.warn("$licenseId already exists! Retrying...")
             addLicense(type, expiryDate, retries - 1)
         } else {
+            val encoder = BCryptPasswordEncoder()
+            val license = License(licenseId, encoder.encode(licenseId), type, expiryDate)
             licenseRepo.insert(license)
             logger.info("Successfully created $license with type ${license.type}")
             license.toString()

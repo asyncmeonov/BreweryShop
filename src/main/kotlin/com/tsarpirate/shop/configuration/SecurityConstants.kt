@@ -1,9 +1,13 @@
 package com.tsarpirate.shop.configuration
 
+import com.typesafe.config.ConfigFactory
+
 object SecurityConstants {
-    const val SECRET = "SECRET_KEY" //TODO change
-    const val EXPIRATION_TIME: Long = 900000 // 15 mins
+
+    private val config = ConfigFactory.defaultApplication().withFallback(ConfigFactory.load("secure.conf"))
+
+    val SECRET: String = config.getString("web.secret")
+    val EXPIRATION_TIME: Long = config.getLong("web.expiration-time")
     const val TOKEN_PREFIX = "Bearer "
     const val HEADER_STRING = "Authorization"
-    const val SIGN_UP_URL = "/api/services/controller/user" //TODO change where we create licenses
 }

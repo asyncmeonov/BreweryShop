@@ -7,10 +7,11 @@ import javax.servlet.FilterChain
 import javax.servlet.http.HttpServletResponse
 import javax.servlet.http.HttpServletRequest
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
-import com.fasterxml.jackson.databind.ObjectMapper
 import com.tsarpirate.shop.configuration.SecurityConstants.EXPIRATION_TIME
 import com.tsarpirate.shop.configuration.SecurityConstants.SECRET
+import com.tsarpirate.shop.model.LoginToken
 import com.tsarpirate.shop.model.UserDetailsLicense
+import com.tsarpirate.shop.util.GsonUtil.gson
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.core.Authentication
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
@@ -21,7 +22,7 @@ class JwtAuthenticationFilter(private val authManager: AuthenticationManager) : 
 
     override fun attemptAuthentication(req: HttpServletRequest, res: HttpServletResponse): Authentication {
         return try {
-            val creds = ObjectMapper().readValue(req.inputStream, String::class.java)
+            val creds = req.requestURI.substringAfterLast("/")
             val authToken = UsernamePasswordAuthenticationToken(creds, creds)
             authManager.authenticate(authToken)
         } catch (e: IOException) {
@@ -42,12 +43,12 @@ class JwtAuthenticationFilter(private val authManager: AuthenticationManager) : 
             .withClaim("type", user.authorities.first().authority)
             .withExpiresAt(Date(System.currentTimeMillis() + EXPIRATION_TIME))
             .sign(Algorithm.HMAC512(SECRET.toByteArray()))
-        val body: String = user.username + " " + token
-        res.writer.write(body)
+        val body = LoginToken(token = token, license = user.username)
+        res.writer.write(gson.toJson(body))
         res.writer.flush()
     }
 
     init {
-        setFilterProcessesUrl("/login")
+        setFilterProcessesUrl("/login/*")
     }
 }

@@ -7,6 +7,7 @@ import com.tsarpirate.shop.service.OrderService
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.http.ResponseEntity
+import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.*
 import java.util.UUID
 
@@ -16,6 +17,7 @@ class OrderController(val orderService: OrderService, val beerService: BeerServi
     private val logger: Logger = LoggerFactory.getLogger(OrderController::class.java)
 
     @GetMapping("/order")
+    @PreAuthorize("hasRole('admin')")
     fun allOrders(): List<Order> {
         logger.info("Retrieving all orders...")
         return orderService.getOrders()
@@ -37,6 +39,7 @@ class OrderController(val orderService: OrderService, val beerService: BeerServi
     }
 
     @DeleteMapping("/order")
+    @PreAuthorize("hasRole('admin')")
     fun removeOrders(@RequestBody orderIds: List<UUID>): ResponseEntity<String> {
         logger.info("Removing ${orderIds.size} orders...")
         orderIds.forEach { orderService.removeOrder(it) }

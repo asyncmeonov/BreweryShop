@@ -7,6 +7,7 @@ import com.tsarpirate.shop.configuration.SecurityConstants.SECRET
 import com.tsarpirate.shop.configuration.SecurityConstants.TOKEN_PREFIX
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
+import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter
 import javax.servlet.FilterChain
@@ -42,11 +43,10 @@ class JwtAuthorizationFilter(authManager: AuthenticationManager): BasicAuthentic
             val user = JWT.require(Algorithm.HMAC512(SECRET.toByteArray()))
                 .build()
                 .verify(token.replace(TOKEN_PREFIX, ""))
-                .subject
 
-            if (user != null) {
-                // new arraylist means authorities //TODO pass authorities
-                return UsernamePasswordAuthenticationToken(user, null, listOf())
+            if (user.subject != null) {
+                val authority = SimpleGrantedAuthority(user.claims["type"].toString())
+                return UsernamePasswordAuthenticationToken(user.subject, null, listOf(authority))
             }
             return null
         }

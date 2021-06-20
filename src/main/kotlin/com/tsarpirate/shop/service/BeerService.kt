@@ -6,35 +6,38 @@ import com.tsarpirate.shop.repository.BeerRepository
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import java.util.UUID
+
 @Service
 class BeerService(private val beerRepo: BeerRepository) {
 
     //Admin operation
     fun getBeers(): List<Beer> = beerRepo.findAll()
 
-    fun getBeerById(id: UUID) : Beer? = beerRepo.findByIdOrNull(id)
+    fun getBeerById(id: UUID): Beer? = beerRepo.findByIdOrNull(id)
 
     // Returns a beer with a single price model based on the license
     // Note: it is important that two licenses named the same don't exist
     fun getBeersForLicense(licenseType: String): List<OrderBeer> {
-        val beerModels =
-            getBeers().toMutableList()
-        val licensedBeers = beerModels.takeWhile { it.priceModels.any { pModel -> pModel.licenseType.equals(licenseType, ignoreCase = true)  } }
-        beerModels.removeAll(licensedBeers)
-        val defaultBeers = beerModels.filter { it.isAvailableByDefault }
-        val beers = licensedBeers + defaultBeers
+        val beerModels = getBeers().toMutableList()
 
-        return beers.map {
-            OrderBeer(
+        val orderBeers = beerModels.mapNotNull {
+            val license = it.priceModels.find { it.licenseType == licenseType }
+            val template = OrderBeer(
                 it.id,
                 it.amountAvailable,
                 it.name,
                 it.description,
                 it.label,
-                if (it.priceModels.isEmpty()) it.defaultPrice else it.priceModels.first { beer -> beer.licenseType == licenseType }.price,
+               0,
                 it.size
             )
+            when {
+                license != null -> template.copy(price = license.price)
+                it.isAvailableByDefault -> template.copy(price = it.defaultPrice)
+                else -> null
+            }
         }
+        return orderBeers
     }
 
     //Admin operation

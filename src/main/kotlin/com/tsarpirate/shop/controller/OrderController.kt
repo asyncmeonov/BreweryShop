@@ -16,7 +16,7 @@ class OrderController(val orderService: OrderService, val beerService: BeerServi
 
     private val logger: Logger = LoggerFactory.getLogger(OrderController::class.java)
 
-    @GetMapping("/order")
+    @GetMapping("/admin/order")
     @PreAuthorize("hasRole('admin')")
     fun allOrders(): List<Order> {
         logger.info("Retrieving all orders...")
@@ -38,7 +38,7 @@ class OrderController(val orderService: OrderService, val beerService: BeerServi
         return ResponseEntity.ok("Successfully created ${order.id}")
     }
 
-    @DeleteMapping("/order")
+    @DeleteMapping("/admin/order")
     @PreAuthorize("hasRole('admin')")
     fun removeOrders(@RequestBody orderIds: List<UUID>): ResponseEntity<String> {
         logger.info("Removing ${orderIds.size} orders...")
@@ -46,7 +46,7 @@ class OrderController(val orderService: OrderService, val beerService: BeerServi
         return ResponseEntity.ok("Closed ${orderIds.size} orders")
     }
 
-    @PutMapping("/order")
+    @PutMapping("/admin/order")
     fun updateOrder(@RequestBody order: Order) {
         logger.info("Updating ${order.id} ...")
         orderService.updateOrder(order)

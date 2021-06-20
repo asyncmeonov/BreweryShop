@@ -18,8 +18,9 @@ class BeerController(val beerService: BeerService, val licenseService: LicenseSe
 
     private val logger: Logger = LoggerFactory.getLogger(BeerController::class.java)
 
-    @GetMapping("/beers/{license}")
-    fun getBeersForLicense(@PathVariable(name = "license") licenseVal: String, auth:Authentication): List<OrderBeer> {
+    @GetMapping("/beers")
+    fun getBeersForLicense(auth:Authentication): List<OrderBeer> {
+        val licenseVal = auth.name
         val license = licenseService.getLicenseByValue(licenseVal)
         return if (license != null) {
             logger.info("Retrieving all beers with $license license...")
@@ -30,14 +31,14 @@ class BeerController(val beerService: BeerService, val licenseService: LicenseSe
         }
     }
 
-    @GetMapping("/beers")
+    @GetMapping("/admin/beers")
     @PreAuthorize("hasRole('admin')")
     fun allBeers(auth: Authentication): List<Beer> {
         logger.info("Retrieving all beers...")
         return beerService.getBeers()
     }
 
-    @PostMapping("/beers")
+    @PostMapping("/admin/beers")
     @PreAuthorize("hasRole('admin')")
     fun createBeer(@RequestBody beer: Beer): ResponseEntity<Any> {
         if (beer.priceModels.map { it.licenseType }.distinct().size != beer.priceModels.size) {
@@ -52,7 +53,7 @@ class BeerController(val beerService: BeerService, val licenseService: LicenseSe
         return ResponseEntity.ok("Successfully created ${beer.name}")
     }
 
-    @PutMapping("/beers")
+    @PutMapping("/admin/beers")
     @PreAuthorize("hasRole('admin')")
     fun updateBeer(@RequestBody beer: Beer): ResponseEntity<String> {
         if(beerService.getBeerById(beer.id) == null) return ResponseEntity.badRequest()

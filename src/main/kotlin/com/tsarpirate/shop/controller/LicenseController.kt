@@ -12,13 +12,13 @@ import javax.websocket.server.PathParam
 @RestController
 class LicenseController(val licenseService: LicenseService) {
 
-    @GetMapping("/license")
+    @GetMapping("/admin/license")
     @PreAuthorize("hasRole('admin')")
     fun allLicenses(): List<License> {
         return licenseService.getLicenses()
     }
 
-    @PostMapping("/license/{licenseType}")
+    @PostMapping("/admin/license/{licenseType}")
     @PreAuthorize("hasRole('admin')")
     fun createLicense(
         @PathVariable("licenseType") licenseType: String,
@@ -33,7 +33,7 @@ class LicenseController(val licenseService: LicenseService) {
         }
     }
 
-    @DeleteMapping("/license/{license}")
+    @DeleteMapping("/admin/license/{license}")
     @PreAuthorize("hasRole('admin')")
     fun deleteLicense(@PathVariable("license") license: String) {
         licenseService.removeLicense(license)

@@ -5,7 +5,6 @@ import com.tsarpirate.shop.model.UserDetailsLicense
 import com.tsarpirate.shop.repository.LicenseRepository
 import org.slf4j.LoggerFactory
 import org.springframework.data.repository.findByIdOrNull
-import org.springframework.expression.AccessException
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder

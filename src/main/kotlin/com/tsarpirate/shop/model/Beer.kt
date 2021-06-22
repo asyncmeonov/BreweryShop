@@ -16,7 +16,7 @@ import java.util.UUID
  * If true, it will be displayed by default, if false, you would need a license in priceModels to obtain this beer
  */
 data class Beer(
-    val id: UUID = UUID.randomUUID(),
+    val id: UUID,
     val name: String,
     val description: String,
     val label: URL,
@@ -27,3 +27,13 @@ data class Beer(
     val priceModels: List<PriceModel>,
     val isAvailableByDefault: Boolean
 )
+
+data class BeerRequest(val name: String,
+                       val description: String,
+                       val label: URL,
+                       val amountInStock: Int,
+                       val amountAvailable: Int = amountInStock,
+                       val size: Int,
+                       val defaultPrice: Int,
+                       val priceModels: List<PriceModel>,
+                       val isAvailableByDefault: Boolean)

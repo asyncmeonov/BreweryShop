@@ -6,6 +6,7 @@ import com.tsarpirate.shop.service.BeerService
 import com.tsarpirate.shop.service.OrderService
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.*
@@ -25,17 +26,24 @@ class OrderController(val orderService: OrderService, val beerService: BeerServi
 
     @PostMapping("/order")
     fun addOrder(@RequestBody order: Order): ResponseEntity<String> {
-        val beersAndAmount = order.orderBeers.map { Pair(it.amount, beerService.getBeerById(it.id)) }
-        if (beersAndAmount.any { it.second == null }) return ResponseEntity
-            .badRequest()
-            .body("Invalid order. One or more beers you've selected are not served currently.")
-        val outOfStock = beersAndAmount.filter { it.first > it.second!!.amountAvailable }
-        if (outOfStock.isNotEmpty()) return buildOutOfStockResponse(outOfStock)
-        logger.info("Creating order ${order.id} for ${order.pirateName}...")
-        orderService.addOrder(order)
-        val updated = beersAndAmount.map { it.second!!.copy(amountAvailable = it.second!!.amountAvailable - it.first) }
-        updated.forEach { beerService.updateBeer(it) }
-        return ResponseEntity.ok("Successfully created ${order.id}")
+        return try{
+            val beersAndAmount = order.orderBeers.map { Pair(it.amount, beerService.getBeerById(it.id)) }
+            if (beersAndAmount.any { it.second == null }) return ResponseEntity
+                .badRequest()
+                .body("Invalid order. One or more beers you've selected are not served currently.")
+            val outOfStock = beersAndAmount.filter { it.first > it.second!!.amountAvailable }
+            if (outOfStock.isNotEmpty()) return buildOutOfStockResponse(outOfStock)
+            logger.info("Creating order ${order.id} for ${order.pirateName}...")
+            orderService.addOrder(order)
+            val updated = beersAndAmount.map { it.second!!.copy(amountAvailable = it.second!!.amountAvailable - it.first) }
+            updated.forEach { beerService.updateBeer(it) }
+            ResponseEntity.ok("Your order was successfully received! Order id: ${order.id}. " +
+                    "Follow our Discord server for delivery or pickup information.")
+        } catch (ex: Exception) {
+            logger.error("There was a problem with creating ${order.id}, $ex")
+            ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build()
+        }
+
     }
 
     @DeleteMapping("/admin/order")

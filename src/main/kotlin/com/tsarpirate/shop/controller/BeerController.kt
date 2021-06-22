@@ -1,6 +1,7 @@
 package com.tsarpirate.shop.controller
 
 import com.tsarpirate.shop.model.Beer
+import com.tsarpirate.shop.model.BeerRequest
 import com.tsarpirate.shop.model.OrderBeer
 import com.tsarpirate.shop.service.BeerService
 import com.tsarpirate.shop.service.LicenseService
@@ -39,8 +40,7 @@ class BeerController(val beerService: BeerService, val licenseService: LicenseSe
     }
 
     @PostMapping("/admin/beers")
-    @PreAuthorize("hasRole('admin')")
-    fun createBeer(@RequestBody beer: Beer): ResponseEntity<Any> {
+    fun createBeer(@RequestBody beer: BeerRequest): ResponseEntity<Any> {
         if (beer.priceModels.map { it.licenseType }.distinct().size != beer.priceModels.size) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
                 "Failed creating ${beer.name}. " +
@@ -48,8 +48,7 @@ class BeerController(val beerService: BeerService, val licenseService: LicenseSe
             )
         }
         logger.info("Creating a new beer named ${beer.name}...")
-        val corrPriceModels = beer.priceModels.map { it.copy(licenseType = it.licenseType.toUpperCase()) }
-        beerService.addBeer(beer.copy(priceModels = corrPriceModels))
+        beerService.addBeer(beer)
         return ResponseEntity.ok("Successfully created ${beer.name}")
     }
 

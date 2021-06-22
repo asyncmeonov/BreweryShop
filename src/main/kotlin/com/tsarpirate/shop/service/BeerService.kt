@@ -1,6 +1,7 @@
 package com.tsarpirate.shop.service
 
 import com.tsarpirate.shop.model.Beer
+import com.tsarpirate.shop.model.BeerRequest
 import com.tsarpirate.shop.model.OrderBeer
 import com.tsarpirate.shop.repository.BeerRepository
 import org.springframework.data.repository.findByIdOrNull
@@ -41,7 +42,17 @@ class BeerService(private val beerRepo: BeerRepository) {
     }
 
     //Admin operation
-    fun addBeer(beer: Beer) = beerRepo.insert(beer)
+    fun addBeer(beerRequest: BeerRequest) = beerRepo.insert(
+        Beer(id = UUID.randomUUID(),
+        name = beerRequest.name,
+        amountInStock = beerRequest.amountInStock,
+        amountAvailable = beerRequest.amountAvailable,
+        defaultPrice = beerRequest.defaultPrice,
+        description = beerRequest.description,
+        label = beerRequest.label,
+        priceModels = beerRequest.priceModels,
+        size = beerRequest.size,
+        isAvailableByDefault = beerRequest.isAvailableByDefault))
 
 
     //Admin operation

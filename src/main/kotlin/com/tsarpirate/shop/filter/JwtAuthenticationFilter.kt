@@ -38,12 +38,13 @@ class JwtAuthenticationFilter(private val authManager: AuthenticationManager) : 
         auth: Authentication
     ) {
         val user = auth.principal as UserDetailsLicense
+        val authority = user.authorities.first().authority
         val token = JWT.create()
             .withSubject(user.username)
-            .withClaim("type", user.authorities.first().authority)
+            .withClaim("type", authority)
             .withExpiresAt(Date(System.currentTimeMillis() + EXPIRATION_TIME))
             .sign(Algorithm.HMAC512(SECRET.toByteArray()))
-        val body = LoginToken(token = token, license = user.username)
+        val body = LoginToken(token = token, license = user.username, isAdmin = authority.contains("admin"))
         res.writer.write(gson.toJson(body))
         res.writer.flush()
     }

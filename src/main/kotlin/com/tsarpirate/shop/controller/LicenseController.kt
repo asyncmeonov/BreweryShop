@@ -25,7 +25,7 @@ class LicenseController(val licenseService: LicenseService) {
         @PathParam("expires") expires: String? = null
     ): String {
         return try {
-            val dtf = DateTimeFormatter.ofPattern("dd-MM-yyyy")
+            val dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd")
             val expiryDate = if (expires != null )LocalDate.parse(expires, dtf) else null
             licenseService.addLicense(licenseType, expiryDate)
         } catch (ex: DateTimeParseException) {

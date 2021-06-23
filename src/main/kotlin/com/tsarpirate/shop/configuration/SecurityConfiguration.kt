@@ -27,7 +27,7 @@ class SecurityConfiguration(
 
 
     override fun configure(http: HttpSecurity) {
-        http.cors().and().authorizeRequests()
+        http.cors().and().csrf().disable().authorizeRequests()
             .anyRequest().authenticated()
             .and()
             .addFilter(JwtAuthenticationFilter(authenticationManager()))
@@ -43,6 +43,8 @@ class SecurityConfiguration(
     fun corsConfigurationSource(): CorsConfigurationSource? {
         val source = UrlBasedCorsConfigurationSource()
         val corsConfiguration = CorsConfiguration().applyPermitDefaultValues()
+        corsConfiguration.addAllowedMethod("DELETE")
+        corsConfiguration.addAllowedMethod("PUT")
         source.registerCorsConfiguration("/**", corsConfiguration)
         return source
     }

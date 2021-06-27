@@ -34,3 +34,9 @@ build/
 
 ### CONF ###
 src/main/resources/secure.conf
+
+
+### UI BUILD ###
+node_modules
+src/main/resources/static
+docker/*.jar

@@ -11,6 +11,8 @@ import java.util.*
 
 @Configuration
 class MongoConfig : AbstractMongoClientConfiguration() {
+
+    //TODO offload these hardcoded params into config
     override fun getDatabaseName(): String = "tsarPirateBrewery"
 
     override fun mongoClient(): MongoClient {

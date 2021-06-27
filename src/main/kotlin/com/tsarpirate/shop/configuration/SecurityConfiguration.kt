@@ -11,11 +11,16 @@ import org.springframework.security.config.http.SessionCreationPolicy
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder
 import org.springframework.context.annotation.Bean
+import org.springframework.http.HttpMethod
 
 import org.springframework.web.cors.CorsConfiguration
 
 import org.springframework.web.cors.CorsConfigurationSource
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry
+
+
+
 
 
 @Configuration
@@ -28,6 +33,10 @@ class SecurityConfiguration(
 
     override fun configure(http: HttpSecurity) {
         http.cors().and().csrf().disable().authorizeRequests()
+            .antMatchers(
+                HttpMethod.GET,
+                "/","/index*", "/static/**", "/*.js", "/*.json", "/*.ico","/*.png")
+            .permitAll()
             .anyRequest().authenticated()
             .and()
             .addFilter(JwtAuthenticationFilter(authenticationManager()))

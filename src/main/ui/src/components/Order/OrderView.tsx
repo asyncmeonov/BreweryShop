@@ -29,8 +29,12 @@ const OrderView = () => {
 
   const postOrder = async(content: Order) => {
     console.log("request body", content)
-    let response = await post<string>("/order", content)
-    setMessage(response)
+    let response = await post("/order", content)
+    if(response.ok){
+      setMessage("✔️ Order Accepted")
+    } else {
+      setMessage("There was a problem with your order. Please contact us.")
+    }
   }
 
   return (
@@ -47,7 +51,6 @@ const OrderView = () => {
         {
           <div>Total: {(orderedBeers.reduce((sum, current) => sum + (current.price * current.amount), 0)/100).toFixed(2)}</div>
         }
-       {message && <div>{message}</div>}
         <FormControl>
             <InputLabel htmlFor="pirate-name" required={true}>Pirate Name</InputLabel>
             <Input id="pirate-name" aria-describedby="pirate-name-helper-text"
@@ -85,6 +88,7 @@ const OrderView = () => {
         >
           Submit Order
         </Button>
+        {message && <h1>{message}</h1>}
       </Container>
     </Wrapper>
   );

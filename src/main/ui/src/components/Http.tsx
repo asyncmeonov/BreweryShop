@@ -8,7 +8,7 @@ async function get<T>(url: string): Promise<T> {
 }
 
 //returns a response, should be handled in caller
-async function post<T>(url: string, content: any): Promise<T> {
+async function post(url: string, content: any): Promise<Response> {
   let headers = new Headers({ "Content-Type": "application/json" });
   headers.append("Authorization", "Bearer " + window.token);
 
@@ -16,10 +16,10 @@ async function post<T>(url: string, content: any): Promise<T> {
     method: "POST",
     headers: headers,
     body: JSON.stringify(content)
-  })).json();
+  }));
 }
 
-async function remove<T>(url: string, content: any): Promise<T> {
+async function remove(url: string, content: any): Promise<Response> {
   let headers = new Headers({ "Content-Type": "application/json" });
   headers.append("Authorization", "Bearer " + window.token);
 
@@ -27,7 +27,7 @@ async function remove<T>(url: string, content: any): Promise<T> {
     method: "DELETE",
     headers: headers,
     body: JSON.stringify(content)
-  })).json();
+  }));
 }
 
 

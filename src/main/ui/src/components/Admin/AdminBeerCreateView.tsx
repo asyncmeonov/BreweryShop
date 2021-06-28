@@ -31,7 +31,7 @@ const getLicenseTypes = async (): Promise<string[]> => {
   return (await response).map((license) => license.type);
 };
 
-const postBeer = async (beerRequest: AdminBeerRequest): Promise<string> => post<string>("/admin/beers", beerRequest);
+const postBeer = async (beerRequest: AdminBeerRequest) => post("/admin/beers", beerRequest);
 
 const AdminBeerCreateView = () => {
   const [open, setOpen] = useState(false);

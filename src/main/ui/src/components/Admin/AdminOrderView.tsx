@@ -47,7 +47,7 @@ const AdminOrderView = () => {
   if (isLoading) return <LinearProgress />;
   if (error) return <div> Something went wrong... {error} </div>;
 
-  const rows = data?.map((row, i) => {
+  const rows = data?.map(row => {
     return {
       id: row.id,
       pirateName: row.pirateName,

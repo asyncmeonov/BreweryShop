@@ -25,10 +25,16 @@ import {
   GridRowSelectedParams,
 } from "@material-ui/data-grid";
 
+type LicenseRow = {
+  id: string
+  type: string
+  expiryDate: Date
+}
+
 const getLicenses = async (): Promise<License[]> =>
   get<License[]>("/admin/license");
 
-const postLicense = async (type: string, expires: string): Promise<string> =>
+const postLicense = async (type: string, expires: string) =>
   post(
     "/admin/license/" +
       type +
@@ -36,7 +42,7 @@ const postLicense = async (type: string, expires: string): Promise<string> =>
     null
   );
 
-const deleteLicense = async (type: string): Promise<string> =>
+const deleteLicense = async (type: string) =>
   remove("/admin/license/" + type, null);
 
 const GeneratorView = () => {
@@ -46,7 +52,6 @@ const GeneratorView = () => {
 
   const handleClick = () => {
     postLicense(type, expiryDate);
-    getLicenses()
   };
 
   const [selectedRows, setSelectedRows] =
@@ -77,7 +82,7 @@ const GeneratorView = () => {
       type: row.type,
       expiryDate: row.expiryDate
     };
-  });
+  }).filter(row => row.id !== undefined) as LicenseRow[];
 
   return (
     <Wrapper>
@@ -93,7 +98,7 @@ const GeneratorView = () => {
         <DeleteIcon />
       </IconButton>
       <DataGrid
-        rows={rows ? rows : []}
+        rows={rows}
         columns={columns}
         autoHeight
         autoPageSize

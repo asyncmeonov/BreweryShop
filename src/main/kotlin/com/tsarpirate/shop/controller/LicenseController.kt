@@ -2,6 +2,8 @@ package com.tsarpirate.shop.controller
 
 import com.tsarpirate.shop.model.License
 import com.tsarpirate.shop.service.LicenseService
+import org.apache.coyote.Response
+import org.springframework.http.ResponseEntity
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.*
 import java.time.LocalDate
@@ -23,13 +25,14 @@ class LicenseController(val licenseService: LicenseService) {
     fun createLicense(
         @PathVariable("licenseType") licenseType: String,
         @PathParam("expires") expires: String? = null
-    ): String {
+    ): ResponseEntity<String> {
         return try {
             val dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd")
             val expiryDate = if (expires != null )LocalDate.parse(expires, dtf) else null
-            licenseService.addLicense(licenseType, expiryDate)
+            ResponseEntity.ok(licenseService.addLicense(licenseType, expiryDate))
         } catch (ex: DateTimeParseException) {
-            "Bad request, expiry date $expires does not follow \"dd-MM-yyyy\" format."
+            ResponseEntity.badRequest()
+                .body("Expiry date $expires does not follow \"dd-MM-yyyy\" format.")
         }
     }
 

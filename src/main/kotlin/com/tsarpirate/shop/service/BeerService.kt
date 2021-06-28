@@ -59,8 +59,6 @@ class BeerService(private val beerRepo: BeerRepository) {
     fun updateBeer(beer: Beer) = beerRepo.save(beer)
 
     //Admin operation
-    fun removeBeer(uuid: UUID) {
-        throw NotImplementedError("TBD")
-    }
+    fun removeBeer(uuid: UUID) = beerRepo.deleteById(uuid)
 }
 

@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.security.core.Authentication
 import org.springframework.web.bind.annotation.*
+import java.util.*
 
 @CrossOrigin(origins = ["http://localhost:3000"])
 @RestController
@@ -60,5 +61,16 @@ class BeerController(val beerService: BeerService, val licenseService: LicenseSe
         logger.info("Updating ${beer.name}...")
         beerService.updateBeer(beer)
         return ResponseEntity.ok("Successfully updated ${beer.name}")
+    }
+
+    @DeleteMapping("/admin/beers/{id}")
+    @PreAuthorize("hasRole('admin')")
+    fun deleteBeer(@PathVariable("id") id: String): ResponseEntity<String> {
+        val beer = beerService.getBeerById(UUID.fromString(id))
+        if(beer == null) return ResponseEntity.badRequest()
+            .body("Could not find ${id} to be Removed. Make sure you have included the id field of the beer you want deleted. ")
+        logger.info("Removing ${beer.name}...")
+        beerService.removeBeer(beer.id)
+        return ResponseEntity.ok("Successfully removed ${beer.name}")
     }
 }

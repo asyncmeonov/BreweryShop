@@ -47,40 +47,48 @@ type DeletePopupProps = {
   onClose: () => void
 }
 
-const DeletePopup = (props: DeletePopupProps) =>{
-  const {row, open, onClose} = props
-  const onSubmit = () => {
-    remove("/admin/beers/"+row.id, null);
-    onClose();
+const DeletePopup = (props: DeletePopupProps) => {
+  const { row, open, onClose } = props
+  const onSubmit = async () => {
+    let response = remove("/admin/beers/" + row.id, null);
+    if(await response){
+      onClose();
+    }
   };
-  
-  return(
-  <Dialog
-    open={open}
-    onClose={onClose}
-    aria-labelledby="form-dialog-title"
+
+  return (
+    <Dialog
+      open={open}
+      onClose={onClose}
+      aria-labelledby="form-dialog-title"
     >
-    <DialogTitle id="form-dialog-title">Are you sure?</DialogTitle>
-           <DialogContentText>
-            You are trying to delete <b>{row.name} {row.size}ml</b>. This cannot be undone.
-          </DialogContentText>
-    <DialogActions>
-      <Button onClick={onClose} color="primary">
-        Cancel
-      </Button>
-      <Button onClick={onSubmit} color="secondary">
-        Delete Beer
-      </Button>
-    </DialogActions>
+      <DialogTitle id="form-dialog-title">Are you sure?</DialogTitle>
+      <DialogContentText>
+        You are trying to delete <b>{row.name} {row.size}ml</b>. This cannot be undone.
+      </DialogContentText>
+      <DialogActions>
+        <Button onClick={onClose} color="primary">
+          Cancel
+        </Button>
+        <Button onClick={onSubmit} color="secondary">
+          Delete Beer
+        </Button>
+      </DialogActions>
     </Dialog>
-    )
+  )
 }
 
-function Row(props: { row: AdminBeer }) {
+function Row(props: { row: AdminBeer, refetch: () => {} }) {
   const { row } = props;
   const [open, setOpen] = useState(false);
   const [deletePopup, setDeletePopup] = useState(false);
   const classes = useRowStyles();
+
+
+  const handleDelete = () => {
+    setDeletePopup(false);
+    props.refetch();
+  }
 
   return (
     <React.Fragment>
@@ -103,14 +111,14 @@ function Row(props: { row: AdminBeer }) {
         <TableCell>{row.isAvailableByDefault ? "Yes" : "No"}</TableCell>
         <TableCell>{row.defaultPrice}</TableCell>
         <TableCell>{row.description}</TableCell>
-        <TableCell> 
-            <IconButton
-              aria-label="delete"
-              size="small"
-              onClick={() => setDeletePopup(true)}
-            > <DeleteIcon />
-            </IconButton>
-            <DeletePopup row={row} open={deletePopup} onClose={() => {setDeletePopup(false)}}/>
+        <TableCell>
+          <IconButton
+            aria-label="delete"
+            size="small"
+            onClick={() => setDeletePopup(true)}
+          > <DeleteIcon />
+          </IconButton>
+          <DeletePopup row={row} open={deletePopup} onClose={() => { handleDelete() }} />
         </TableCell>
       </TableRow>
       <TableRow>
@@ -128,8 +136,8 @@ function Row(props: { row: AdminBeer }) {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {row.priceModels.map((priceModelRow) => (
-                    <TableRow key={priceModelRow.licenseType}>
+                  {row.priceModels.map((priceModelRow, i) => (
+                    <TableRow key={`${priceModelRow.licenseType}-${i}`}>
                       <TableCell component="th" scope="row">
                         {priceModelRow.licenseType}
                       </TableCell>
@@ -152,6 +160,14 @@ const getBeers = async (): Promise<AdminBeer[]> =>
   get<AdminBeer[]>("/admin/beers");
 
 const AdminBeerView = () => {
+  const { data, isLoading, error, refetch } = useQuery<AdminBeer[]>(
+    "AdminBeer",
+    getBeers
+  );
+
+  if (isLoading) return <LinearProgress />;
+  if (error) return <div> Something went wrong... {error} </div>;
+
   if (window.token === undefined || !window.isAdmin) {
     return (
       <Wrapper>
@@ -167,24 +183,16 @@ const AdminBeerView = () => {
     <Wrapper>
       <CustomAppBar />
       <Box display="flex">
-        <AdminBeerCreateView />
+        <AdminBeerCreateView refetch={refetch} />
       </Box>
-
-      <AdminTableView />
+      <AdminTableView data={data} refetch={refetch} />
     </Wrapper>
   );
 };
 
-const AdminTableView = () => {
-  const { data, isLoading, error } = useQuery<AdminBeer[]>(
-    "AdminBeer",
-    getBeers
-  );
-
-  if (isLoading) return <LinearProgress />;
-  if (error) return <div> Something went wrong... {error} </div>;
-
-      return (
+const AdminTableView = (props: {data: AdminBeer[] | undefined, refetch: ()=>{}}) => {
+  const {data, refetch} = props;
+  return (
     <TableContainer component={Paper}>
       <Table aria-label="beer table">
         <TableHead>
@@ -201,8 +209,8 @@ const AdminTableView = () => {
           </TableRow>
         </TableHead>
         <TableBody>
-          {data?.map(row => (
-            <Row key={row.name} row={row} />
+          {data?.map((row, i) => (
+            <Row key={`${row.name}-${i}`} row={row} refetch={refetch}/>
           ))}
         </TableBody>
       </Table>

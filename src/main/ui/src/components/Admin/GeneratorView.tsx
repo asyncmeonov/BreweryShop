@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useQuery } from "react-query";
 //Components
 import LinearProgress from "@material-ui/core/LinearProgress";
@@ -35,24 +35,30 @@ const getLicenses = async (): Promise<License[]> =>
   get<License[]>("/admin/license");
 
 const postLicense = async (type: string, expires: string) =>
-  post(
+  await post(
     "/admin/license/" +
-      type +
-      (expires.length > 0 ? "?expires=" + expires : ""),
+    type +
+    (expires.length > 0 ? "?expires=" + expires : ""),
     null
   );
 
 const deleteLicense = async (type: string) =>
-  remove("/admin/license/" + type, null);
+  await remove("/admin/license/" + type, null);
 
 const GeneratorView = () => {
-  const { data, isLoading, error } = useQuery<License[]>("License", getLicenses);
+  const { data, isLoading, error, refetch } = useQuery<License[]>("License", getLicenses);
   const [type, setType] = useState("");
   const [expiryDate, setExpiryDate] = useState("");
 
-  const handleClick = () => {
-    postLicense(type, expiryDate);
+  const handleClick = async () => {
+    let response = postLicense(type, expiryDate);
+    if(await response) refetch();
   };
+
+  const handleDelete = async (type: string) => {
+    let response = deleteLicense(type);
+    if(await response) refetch();
+  }
 
   const [selectedRows, setSelectedRows] =
     useState<GridRowSelectedParams | undefined>(undefined);
@@ -88,66 +94,66 @@ const GeneratorView = () => {
     <Wrapper>
       <CustomAppBar />
       <Container>
-      <Box display="flex" justifyContent="space-between">
-        <Box flex="1" style={{marginRight:"15px"}}>
-        <IconButton
-        aria-label="delete"
-        disabled={selectedRows === null}
-        onClick={() => {deleteLicense(selectedRows?.data.id)}}
-      >
-        <DeleteIcon />
-      </IconButton>
-      <DataGrid
-        rows={rows}
-        columns={columns}
-        autoHeight
-        autoPageSize
-        onRowSelected={(newSelection) => {
-          setSelectedRows(newSelection);
-        }}
-       />
+        <Box display="flex" justifyContent="space-between">
+          <Box flex="1" style={{ marginRight: "15px" }}>
+            <IconButton
+              aria-label="delete"
+              disabled={selectedRows === null}
+              onClick={() => { handleDelete(selectedRows?.data.id) }}
+            >
+              <DeleteIcon />
+            </IconButton>
+            <DataGrid
+              rows={rows}
+              columns={columns}
+              autoHeight
+              autoPageSize
+              onRowSelected={(newSelection) => {
+                setSelectedRows(newSelection);
+              }}
+            />
+          </Box>
+          <Box>
+            <FormControl>
+              <InputLabel htmlFor="type" required={true}>
+                License Type
+              </InputLabel>
+              <Input
+                id="type"
+                aria-describedby="type-helper-text"
+                onChange={(e) => setType(e.target.value)}
+                inputProps={{ maxLength: 18 }}
+              />
+              <FormHelperText id="pirate-name-helper-text">
+                No spaces and only underscores allowed.
+              </FormHelperText>
+            </FormControl>
+            <br />
+            <FormControl>
+              <TextField
+                id="date"
+                type="date"
+                InputLabelProps={{
+                  shrink: true,
+                }}
+                onChange={(e) => setExpiryDate(e.target.value)}
+              />
+              <FormHelperText id="pirate-contact-helper-text">
+                If left blank, license will never expire
+              </FormHelperText>
+            </FormControl>
+            <br />
+            <Button
+              size="large"
+              disableElevation
+              variant="contained"
+              disabled={type.length < 1}
+              onClick={() => handleClick()}
+            >
+              Create License
+            </Button>
+          </Box>
         </Box>
-      <Box>
-      <FormControl>
-        <InputLabel htmlFor="type" required={true}>
-          License Type
-        </InputLabel>
-        <Input
-          id="type"
-          aria-describedby="type-helper-text"
-          onChange={(e) => setType(e.target.value)}
-          inputProps={{ maxLength: 18 }}
-        />
-        <FormHelperText id="pirate-name-helper-text">
-          No spaces and only underscores allowed.
-        </FormHelperText>
-      </FormControl>
-      <br />
-      <FormControl>
-        <TextField
-          id="date"
-          type="date"
-          InputLabelProps={{
-            shrink: true,
-          }}
-          onChange={(e) => setExpiryDate(e.target.value)}
-        />
-        <FormHelperText id="pirate-contact-helper-text">
-          If left blank, license will never expire
-        </FormHelperText>
-      </FormControl>
-      <br />
-      <Button
-        size="large"
-        disableElevation
-        variant="contained"
-        disabled={type.length < 1}
-        onClick={handleClick}
-      >
-        Create License
-      </Button>
-      </Box>
-      </Box> 
       </Container>
     </Wrapper>
   );

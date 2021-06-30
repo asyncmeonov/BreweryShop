@@ -35,5 +35,5 @@ data class BeerRequest(val name: String,
                        val amountAvailable: Int = amountInStock,
                        val size: Int,
                        val defaultPrice: Int,
-                       val priceModels: List<PriceModel>,
+                       val priceModels: List<PriceModel?>,
                        val isAvailableByDefault: Boolean)

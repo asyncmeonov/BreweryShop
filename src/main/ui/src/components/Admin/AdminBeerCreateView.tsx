@@ -11,6 +11,7 @@ import {
 } from "../interfaces";
 import { get, post } from "../Http";
 import { useQuery } from "react-query";
+import MuiAlert, { AlertProps } from '@material-ui/lab/Alert';
 import {
   Box,
   Button,
@@ -23,17 +24,25 @@ import {
   InputLabel,
   NativeSelect,
   IconButton,
+  Snackbar,
+  Color
 } from "@material-ui/core";
 import React from "react";
+
+function Alert(props: AlertProps) {
+  return <MuiAlert elevation={6} variant="filled" {...props} />;
+}
 
 const getLicenseTypes = async (): Promise<string[]> => {
   let response = get<License[]>("/admin/license");
   return (await response).map((license) => license.type);
 };
 
-const postBeer = async (beerRequest: AdminBeerRequest) => post("/admin/beers", beerRequest);
+const postBeer = async (beerRequest: AdminBeerRequest) => await post("/admin/beers", beerRequest);
 
-const AdminBeerCreateView = () => {
+const AdminBeerCreateView = (props: {refetch: ()=>{}}) => {
+  let {refetch} = props
+  //Dialog form hooks
   const [open, setOpen] = useState(false);
   const handleClickOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
@@ -44,29 +53,54 @@ const AdminBeerCreateView = () => {
     unregister,
     formState: { errors },
   } = useForm<AdminBeerRequest>();
-  const onSubmit = handleSubmit((data) => {
-        let response = postBeer(data);
-        //TODO handle response 
-      });
+
+  //popup related hooks
+  const [popupOpen, setPopuptOpen] = useState(false);
+  const [popupMessage, setPopupMessage] = useState<string | undefined>();
+  const [isError, setIsError] = useState(false);
+
+  const handlePopupClose = (event?: React.SyntheticEvent, reason?: string) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setPopuptOpen(false);
+  };
+
+  const onSubmit = handleSubmit(async (data) => {
+    let response = await postBeer(data);
+    if (response.ok) {
+      setPopupMessage(`Created ${data.name} ${data.size}ml`);
+      setIsError(false);
+      setPopuptOpen(true);
+      setOpen(false);
+      refetch();
+    } else {
+      let errorMessage = await response.text()
+      setPopupMessage(errorMessage);
+      setIsError(true);
+      setPopuptOpen(true);
+      refetch();
+    }
+  });
 
   //(Dynamic fields) License models for a beer
   const [modelCount, setModelCount] = useState(0);
   const { data } = useQuery<string[]>("License", getLicenseTypes);
-  const [licenseMap, setLicenseMap] = useState(new Map());
+  const [licenseMap] = useState(new Map());
 
   const handleChange = (event: React.ChangeEvent<{ value: unknown }>, key: number) => {
     handleAdd(key, event.target.value as string)
-      };
+  };
 
   const handleAdd = (key: number, value: string) => {
-        licenseMap.set(key, value)
-   setModelCount( modelCount + 1); //I have no clue why this works but if you don't update a variable with a state hook, the license map would not update in the UI
-      }
+    licenseMap.set(key, value)
+    setModelCount(modelCount + 1); //I have no clue why this works but if you don't update a variable with a state hook, the license map would not update in the UI
+  }
 
   const handleDelete = (key: number) => {
-        licenseMap.delete(key);
-      setModelCount(modelCount - 1);
-      };
+    licenseMap.delete(key);
+    setModelCount(modelCount - 1);
+  };
 
   if (window.token === undefined || !window.isAdmin) {
     return (
@@ -78,7 +112,7 @@ const AdminBeerCreateView = () => {
 
   return (
     <Box>
-      <Button variant="outlined" color="primary" onClick={handleClickOpen}>
+      <Button variant="outlined" color="primary" onClick={() => { handleClickOpen() }}>
         Create Beer
       </Button>
       <Dialog
@@ -207,17 +241,17 @@ const AdminBeerCreateView = () => {
                   style={{ display: "flex", justifyContent: "space-between" }}
                 >
                   <NativeSelect
-                   {...register(
-                    `priceModels.${i}.licenseType`
-                  )} // as `priceModels.${number}.licenseType`
+                    {...register(
+                      `priceModels.${i}.licenseType`
+                    )} // as `priceModels.${number}.licenseType`
                     value={licenseMap.get(i)}
-                    onChange={e => {handleChange(e, i)}}
+                    onChange={e => { handleChange(e, i) }}
                   >
                     <option
                       key="none" value=""></option>
                     {data?.map((licenseType) => (
                       <option
-                      key={`${i}-${licenseType}`} value={licenseType}>
+                        key={`${i}-${licenseType}`} value={licenseType}>
                         {licenseType}
                       </option>
                     ))}
@@ -248,14 +282,22 @@ const AdminBeerCreateView = () => {
           })}
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleClose} color="primary">
+          <Button onClick={() => { handleClose() }} color="primary">
             Cancel
           </Button>
-          <Button onClick={onSubmit} color="primary">
+          <Button onClick={(e) => { onSubmit(e) }} color="primary">
             Create Beer
           </Button>
         </DialogActions>
       </Dialog>
+      <Snackbar
+        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+        open={popupOpen} autoHideDuration={6000} onClose={handlePopupClose}>
+        <Alert
+          onClose={handlePopupClose} severity={isError ? "error" : "success"}>
+          {popupMessage}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 };

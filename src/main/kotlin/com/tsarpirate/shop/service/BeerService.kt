@@ -50,7 +50,7 @@ class BeerService(private val beerRepo: BeerRepository) {
         defaultPrice = beerRequest.defaultPrice,
         description = beerRequest.description,
         label = beerRequest.label,
-        priceModels = beerRequest.priceModels,
+        priceModels = beerRequest.priceModels.mapNotNull { it },
         size = beerRequest.size,
         isAvailableByDefault = beerRequest.isAvailableByDefault))
 

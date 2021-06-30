@@ -42,7 +42,8 @@ class BeerController(val beerService: BeerService, val licenseService: LicenseSe
 
     @PostMapping("/admin/beers")
     fun createBeer(@RequestBody beer: BeerRequest): ResponseEntity<Any> {
-        if (beer.priceModels.map { it.licenseType }.distinct().size != beer.priceModels.size) {
+        val totalValid = beer.priceModels.count { it != null }
+        if (beer.priceModels.mapNotNull { it?.licenseType }.distinct().size != totalValid) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
                 "Failed creating ${beer.name}. " +
                         "Duplicate license types are not allowed. Create a new beer if you want to reuse a license type."

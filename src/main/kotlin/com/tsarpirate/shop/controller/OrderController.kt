@@ -37,7 +37,7 @@ class OrderController(val orderService: OrderService, val beerService: BeerServi
             orderService.addOrder(order)
             val updated = beersAndAmount.map { it.second!!.copy(amountAvailable = it.second!!.amountAvailable - it.first) }
             updated.forEach { beerService.updateBeer(it) }
-            ResponseEntity.ok("Your order was successfully received! Order id: ${order.id}. " +
+            ResponseEntity.ok("Your order was successfully received! Order number: ${order.id}. " +
                     "Follow our Discord server for delivery or pickup information.")
         } catch (ex: Exception) {
             logger.error("There was a problem with creating ${order.id}, $ex")

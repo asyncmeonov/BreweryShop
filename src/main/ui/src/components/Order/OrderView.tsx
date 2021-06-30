@@ -2,6 +2,7 @@ import { useState } from "react";
 //Components
 import { FormControl, FormHelperText, Input, InputLabel, FormControlLabel, Checkbox, Button } from "@material-ui/core";
 import { Container } from '@material-ui/core';
+import  OrderSubmission from "./OrderSubmission";
 //styles
 import { Wrapper } from "./OrderView.style";
 import { BeerType, Order } from "../interfaces";
@@ -21,6 +22,7 @@ function isInvalidField(field: string | undefined): boolean {
 const OrderView = () => {
   let history = useHistory();
   const [message, setMessage] = useState<string | undefined>(undefined);
+  const [isSuccessful, setIsSuccessful] = useState(false);
   const [isDelivery, setDelivery] = useState(false);
   const [pName, setPirateName] = useState<string | undefined>(undefined);
   const [pContact, setPirateContact] = useState<string | undefined>(undefined);
@@ -28,18 +30,37 @@ const OrderView = () => {
 
 
   const postOrder = async(content: Order) => {
-    console.log("request body", content)
     let response = await post("/order", content)
     if(response.ok){
-      setMessage("✔️ Order Accepted")
+      let responseBody = await response.text()
+      setMessage(responseBody)
+      setIsSuccessful(true);
     } else {
-      setMessage("There was a problem with your order. Please contact us.")
+      setMessage("Please try again. If the problem persists, contact us.")
+      setIsSuccessful(false);
     }
+  }
+
+  if (window.token === undefined) {
+    return (
+      <Wrapper>
+        <div>You don't have a valid license. Go back to the <a href="/">homepage</a></div>
+      </Wrapper>
+    );
+  }
+
+  if(message) {
+    return (
+      <Wrapper>
+        <OrderSubmission {...{isSuccessful, message}}></OrderSubmission>
+      </Wrapper>
+    )
   }
 
   return (
     <Wrapper>
       <Container maxWidth="sm">
+        <hr/>
         {
           orderedBeers.map(beer => (
             <div>
@@ -47,7 +68,7 @@ const OrderView = () => {
             </div>
           ))
         }
-        <hr></hr>
+        <hr/>
         {
           <div>Total: {(orderedBeers.reduce((sum, current) => sum + (current.price * current.amount), 0)/100).toFixed(2)}</div>
         }
@@ -77,7 +98,8 @@ const OrderView = () => {
             multiline
             onChange={e => setPirateContact(e.target.value)}
             inputProps={{ maxLength: 420 }}/>
-            <FormHelperText id="pirate-contact-helper-text">How do you want to be contacted for the delivery? max 420 characters</FormHelperText>
+            <FormHelperText id="pirate-contact-helper-text_1">How do you want to be contacted for the delivery? max 420 characters</FormHelperText>
+            <FormHelperText id="pirate-contact-helper-text_2">Phone, email or another unique way of contacting is needed to do the delivery.</FormHelperText>
       </FormControl><br/>
       <Button
           size="large"
@@ -88,7 +110,6 @@ const OrderView = () => {
         >
           Submit Order
         </Button>
-        {message && <h1>{message}</h1>}
       </Container>
     </Wrapper>
   );

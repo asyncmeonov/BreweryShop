@@ -45,7 +45,7 @@ const Cart: React.FC<Props> = ({cartBeers, addToCart, removeFromCart}) => {
                 disableElevation
                 variant="contained"
                 onClick={handleClick}
-             >Submit Order</Button>
+             >Go to Checkout</Button>
         </Wrapper>
     )
 }

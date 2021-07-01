@@ -4,8 +4,8 @@ import com.mongodb.ConnectionString
 import com.mongodb.MongoClientSettings
 import com.mongodb.client.MongoClient
 import com.mongodb.client.MongoClients
-import com.tsarpirate.shop.repository.DatabaseConstants.CONNECTION_STR
-import com.tsarpirate.shop.repository.DatabaseConstants.DB_NAME
+import com.tsarpirate.shop.configuration.SecurityConstants.CONNECTION_STR
+import com.tsarpirate.shop.configuration.SecurityConstants.DB_NAME
 import org.bson.UuidRepresentation
 import org.springframework.context.annotation.Configuration
 import org.springframework.data.mongodb.config.AbstractMongoClientConfiguration
@@ -14,7 +14,6 @@ import java.util.*
 @Configuration
 class MongoConfig : AbstractMongoClientConfiguration() {
 
-    //TODO offload these hardcoded params into config
     override fun getDatabaseName(): String = DB_NAME
 
     override fun mongoClient(): MongoClient {

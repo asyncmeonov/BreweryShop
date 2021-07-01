@@ -2,7 +2,6 @@ package com.tsarpirate.shop.configuration
 
 import com.typesafe.config.Config
 import com.typesafe.config.ConfigFactory
-import org.springframework.beans.factory.annotation.Value
 import java.lang.IllegalArgumentException
 
 object SecurityConstants {

@@ -1,4 +1,3 @@
-import { useState } from "react";
 //Components
 import LinearProgress from "@material-ui/core/LinearProgress";
 //styles
@@ -26,6 +25,8 @@ const AdminOrderView = () => {
 
   const columns: GridColDef[] = [
     { field: 'id', headerName: 'Order №', width: 150 },
+    { field: 'license', headerName: 'License', width: 150 },
+    { field: 'licenseType', headerName: 'Type', width: 150 },
     { field: 'pirateName', headerName: 'Name', width: 150 },
     { field: 'orderBeers', headerName: 'Beers', width: 150 },
     { field: 'total', headerName: 'Total Price', width: 150 },
@@ -50,6 +51,8 @@ const AdminOrderView = () => {
   const rows = data?.map(row => {
     return {
       id: row.id,
+      license: row.license,
+      licenseType: row.licenseType,
       pirateName: row.pirateName,
       orderBeers: row.orderBeers
         .map((beer) => formatBeerForTable(beer))
@@ -64,9 +67,9 @@ const AdminOrderView = () => {
 
   return (
     <Wrapper>
-      <CustomAppBar/>
+      <CustomAppBar />
       {/* you can use DataGrid instead of XGrid  */}
-      <DataGrid rows={rows ? rows : []} columns={columns} autoHeight autoPageSize/>
+      <DataGrid rows={rows ? rows : []} columns={columns} autoHeight autoPageSize />
     </Wrapper>
   );
 };

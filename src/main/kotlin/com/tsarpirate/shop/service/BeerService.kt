@@ -21,7 +21,7 @@ class BeerService(private val beerRepo: BeerRepository) {
     fun getBeersForLicense(licenseType: String): List<OrderBeer> {
         val beerModels = getBeers().toMutableList()
 
-        val orderBeers = beerModels.mapNotNull {
+        return beerModels.mapNotNull {
             val license = it.priceModels.find { it.licenseType == licenseType }
             val template = OrderBeer(
                 it.id,
@@ -29,7 +29,7 @@ class BeerService(private val beerRepo: BeerRepository) {
                 it.name,
                 it.description,
                 it.label,
-               0,
+                0,
                 it.size
             )
             when {
@@ -38,7 +38,6 @@ class BeerService(private val beerRepo: BeerRepository) {
                 else -> null
             }
         }
-        return orderBeers
     }
 
     //Admin operation

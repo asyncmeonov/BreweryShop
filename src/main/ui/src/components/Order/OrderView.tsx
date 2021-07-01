@@ -31,12 +31,12 @@ const OrderView = () => {
 
   const postOrder = async(content: Order) => {
     let response = await post("/order", content)
+    let responseBody = await response.text()
     if(response.ok){
-      let responseBody = await response.text()
       setMessage(responseBody)
       setIsSuccessful(true);
     } else {
-      setMessage("Please try again. If the problem persists, contact us.")
+      setMessage(`${responseBody} Please try again. If the problem persists, contact us.`)
       setIsSuccessful(false);
     }
   }
@@ -79,34 +79,24 @@ const OrderView = () => {
             inputProps={{ maxLength: 69 }}/>
             <FormHelperText id="pirate-name-helper-text">How are you known in the seas? max 69 characters</FormHelperText>
       </FormControl> <br/>
-      <FormControlLabel
-        control={
-          <Checkbox
-            checked={isDelivery}
-            onChange={() => setDelivery(!isDelivery)}
-            color="primary"
-          />
-        }
-        label="I want a delivery to my door"
-      /><br/>
       <FormControl>
-            <InputLabel htmlFor="pirate-contact" required={isDelivery}>Pirate Contact</InputLabel>
+            <InputLabel htmlFor="pirate-contact" required={true}>Pirate Contact</InputLabel>
             <Input 
             id="pirate-contact" 
             aria-describedby="pirate-contact-helper-text" 
-            disabled={!isDelivery} 
             multiline
             onChange={e => setPirateContact(e.target.value)}
             inputProps={{ maxLength: 420 }}/>
             <FormHelperText id="pirate-contact-helper-text_1">How do you want to be contacted for the delivery? max 420 characters</FormHelperText>
             <FormHelperText id="pirate-contact-helper-text_2">Phone, email or another unique way of contacting is needed to do the delivery.</FormHelperText>
+            <FormHelperText id="pirate-contact-helper-text_2"><i>Example: I will collect it myself next Thursday (11/06), email: bad.boy@gmail.com</i></FormHelperText>
       </FormControl><br/>
       <Button
           size="large"
           disableElevation
           variant="contained"
-          disabled={(isDelivery && (isInvalidField(pName) || isInvalidField(pContact)))||(!isDelivery && isInvalidField(pName))}
-          onClick={() => postOrder({orderBeers: orderedBeers, pirateName: pName as string, pirateContact: pContact })}
+          disabled={(isInvalidField(pName) || isInvalidField(pContact))}
+          onClick={() => postOrder({orderBeers: orderedBeers, pirateName: pName as string, pirateContact: pContact as string })}
         >
           Submit Order
         </Button>

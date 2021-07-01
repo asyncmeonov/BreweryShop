@@ -26,14 +26,18 @@ data class Beer(
     val defaultPrice: Int,
     val priceModels: List<PriceModel>,
     val isAvailableByDefault: Boolean
-)
+) {
+    fun hasPriceModelForLicense(licenseType: String): Boolean = priceModels.any { it.licenseType == licenseType }
+}
 
-data class BeerRequest(val name: String,
-                       val description: String,
-                       val label: URL,
-                       val amountInStock: Int,
-                       val amountAvailable: Int = amountInStock,
-                       val size: Int,
-                       val defaultPrice: Int,
-                       val priceModels: List<PriceModel?>,
-                       val isAvailableByDefault: Boolean)
+data class BeerRequest(
+    val name: String,
+    val description: String,
+    val label: URL,
+    val amountInStock: Int,
+    val amountAvailable: Int = amountInStock,
+    val size: Int,
+    val defaultPrice: Int,
+    val priceModels: List<PriceModel?>,
+    val isAvailableByDefault: Boolean
+)

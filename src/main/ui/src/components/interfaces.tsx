@@ -44,13 +44,15 @@ export interface LoginToken extends BaseLicense {
 
 export interface Order {
     pirateName: string,
-    pirateContact?: string,
+    pirateContact: string,
     orderBeers: BeerType[]
 }
 
 export interface AdminOrder extends Order {
     id: string,
     total: number,
+    license: string,
+    licenseType: string,
     dateCreated: Date,
     dateCompleted?: Date,
     notes?: string

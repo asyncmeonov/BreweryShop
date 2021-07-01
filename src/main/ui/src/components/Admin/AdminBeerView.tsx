@@ -108,7 +108,7 @@ function Row(props: { row: AdminBeer, refetch: () => {} }) {
         <TableCell>{row.size}</TableCell>
         <TableCell>{row.amountInStock}</TableCell>
         <TableCell>{row.amountAvailable}</TableCell>
-        <TableCell>{row.isAvailableByDefault ? "Yes" : "No"}</TableCell>
+        <TableCell>{row.availableByDefault ? "Yes" : "No"}</TableCell>
         <TableCell>{row.defaultPrice}</TableCell>
         <TableCell>{row.description}</TableCell>
         <TableCell>

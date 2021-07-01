@@ -16,7 +16,7 @@ export interface AdminBeerRequest extends BaseBeer {
     amountInStock: number,
     defaultPrice: number,
     priceModels: PriceModel[],
-    isAvailableByDefault: boolean
+    availableByDefault: boolean
 }
 
 export interface AdminBeer extends AdminBeerRequest {

@@ -201,7 +201,7 @@ const AdminBeerCreateView = (props: {refetch: ()=>{}}) => {
             )}
           />
           <Controller
-            name="isAvailableByDefault"
+            name="availableByDefault"
             control={control}
             render={({ field }) => (
               <FormControlLabel

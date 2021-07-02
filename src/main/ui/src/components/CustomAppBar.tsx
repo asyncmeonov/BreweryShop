@@ -7,6 +7,9 @@ import {
   Theme
 } from "@material-ui/core";
 import { useHistory } from "react-router-dom";
+import { getGlobalIsAdmin } from "../window";
+
+
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -22,7 +25,7 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
-const CustomAppBar = () => {
+const CustomAppBar = (props?: { button?: JSX.Element}) => {
   const history = useHistory();
   const classes = useStyles();
 
@@ -36,7 +39,7 @@ const CustomAppBar = () => {
         >
           Beers
         </Typography>
-        {window.isAdmin && (
+        {getGlobalIsAdmin() && (
           <Typography
             variant="h6"
             onClick={() => history.push("/admin/order")}
@@ -45,7 +48,7 @@ const CustomAppBar = () => {
             Order Management
           </Typography>
         )}
-        {window.isAdmin && (
+        {getGlobalIsAdmin() && (
           <Typography
             variant="h6"
             onClick={() => history.push("/admin/beers")}
@@ -54,7 +57,7 @@ const CustomAppBar = () => {
             Beer Management
           </Typography>
         )}
-        {window.isAdmin && (
+        {getGlobalIsAdmin() && (
           <Typography
             variant="h6"
             onClick={() => history.push("/admin/generate")}
@@ -63,6 +66,10 @@ const CustomAppBar = () => {
             License Management
           </Typography>
         )}
+        {props && (
+          props.button
+        )
+        }
       </Toolbar>
     </AppBar>
   );

@@ -13,18 +13,19 @@ import CustomAppBar from "../CustomAppBar";
 import { Wrapper, StyledButton } from "./BeerView.style";
 import { BeerType } from "../interfaces";
 import { get } from "../Http";
+import { getGlobalToken } from "../../window";
 
-const getProducts = async(): Promise<BeerType[]> => get<BeerType[]>("/beers")
+const getProducts = async (): Promise<BeerType[]> => get<BeerType[]>("/beers")
 
 const BeerView = () => {
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [cartBeers, setCartBeers] = useState([] as BeerType[]);
   const { data, isLoading, error } = useQuery<BeerType[]>("beers", getProducts);
 
-  if (window.token === undefined) {
+  if (getGlobalToken() === undefined) {
     return (
       <Wrapper>
-        <div>You don't have a valid license. Go back to the <a href="/">homepage</a></div>
+        <div>Session has expired. Go back to the <a href="/">homepage</a></div>
       </Wrapper>
     );
   }
@@ -65,32 +66,33 @@ const BeerView = () => {
   if (error) return <div> Something went wrong... </div>;
   return (
     <div>
-      <CustomAppBar></CustomAppBar>
-      <StyledButton onClick={() => setIsCartOpen(true)}>
+      <CustomAppBar {...{
+        button: <StyledButton onClick={() => setIsCartOpen(true)}>
           <Badge badgeContent={getTotalItems(cartBeers)} color="error">
             <AddShopingCartIcon />
           </Badge>
         </StyledButton>
-    <Wrapper>
-      <Drawer
-        anchor="right"
-        open={isCartOpen}
-        onClose={() => setIsCartOpen(false)}
-      >
-        <Cart
-          cartBeers={cartBeers}
-          addToCart={addToCart}
-          removeFromCart={removeFromCart}
-        />
-      </Drawer>
-      <Grid container spacing={3}>
-        {data?.map((beer) => (
-          <Grid item key={beer.id} xs={12}>
-            <BeerCard beer={beer} addToCart={addToCart} />
-          </Grid>
-        ))}
-      </Grid>
-    </Wrapper>
+      }} />
+      <Wrapper>
+        <Drawer
+          anchor="right"
+          open={isCartOpen}
+          onClose={() => setIsCartOpen(false)}
+        >
+          <Cart
+            cartBeers={cartBeers}
+            addToCart={addToCart}
+            removeFromCart={removeFromCart}
+          />
+        </Drawer>
+        <Grid container spacing={3}>
+          {data?.map((beer) => (
+            <Grid item key={beer.id} xs={12}>
+              <BeerCard beer={beer} addToCart={addToCart} />
+            </Grid>
+          ))}
+        </Grid>
+      </Wrapper>
     </div>
   );
 };

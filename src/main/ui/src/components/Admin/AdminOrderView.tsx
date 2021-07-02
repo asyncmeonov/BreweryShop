@@ -8,7 +8,7 @@ import { DataGrid, GridColDef } from "@material-ui/data-grid";
 import CustomAppBar from "../CustomAppBar";
 import { useQuery } from "react-query";
 import { XGrid } from '@material-ui/x-grid';
-import { formatPrice } from "../../window";
+import { formatPrice, getGlobalIsAdmin, getGlobalToken } from "../../window";
 
 function formatBeerForTable(beer: BeerType): string {
   return beer.name + ": " + beer.amount + "x" + beer.size + "ml";
@@ -36,7 +36,7 @@ const AdminOrderView = () => {
     { field: "notes", headerName: "Notes", width: 150 }
   ];
 
-  if (window.token === undefined || !window.isAdmin) {
+  if (getGlobalToken() === undefined || !getGlobalIsAdmin()) {
     return (
       <Wrapper>
         <div>

@@ -6,6 +6,7 @@ import { useHistory } from "react-router-dom";
 import { useState } from "react";
 import { LoginToken } from "./components/interfaces";
 import { get } from "./components/Http";
+import { setGlobalIsAdmin, setGlobalLicense, setGlobalToken } from "./window";
 
 const licenseInputStyle: CSSProperties = {
   width: "40%",
@@ -39,9 +40,9 @@ const Login = () => {
   };
 
   if (license && token && isAdmin !== undefined) {
-    window.token = token;
-    window.license = license;
-    window.isAdmin = isAdmin;
+    setGlobalToken(token);
+    setGlobalIsAdmin(isAdmin);
+    setGlobalLicense(license);
     history.push("/beers");
   }
 

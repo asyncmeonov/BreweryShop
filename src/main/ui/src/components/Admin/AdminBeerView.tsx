@@ -22,7 +22,6 @@ import {
   Paper,
   Dialog,
   DialogTitle,
-  DialogContent,
   DialogActions,
   Button,
   DialogContentText
@@ -31,7 +30,7 @@ import React from "react";
 import KeyboardArrowDownIcon from "@material-ui/icons/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@material-ui/icons/KeyboardArrowUp";
 import AdminBeerCreateView from "./AdminBeerCreateView";
-import { formatPrice } from "../../window";
+import { formatPrice, getGlobalIsAdmin, getGlobalLicense, getGlobalToken } from "../../window";
 
 const useRowStyles = makeStyles({
   root: {
@@ -165,10 +164,13 @@ const AdminBeerView = () => {
     getBeers
   );
 
+  console.log("token "+getGlobalToken())
+  console.log("isAdmin "+getGlobalIsAdmin())
+  console.log("license "+getGlobalLicense())
   if (isLoading) return <LinearProgress />;
   if (error) return <div> Something went wrong... {error} </div>;
 
-  if (window.token === undefined || !window.isAdmin) {
+  if (getGlobalToken() === undefined || !getGlobalIsAdmin()) {
     return (
       <Wrapper>
         <div>

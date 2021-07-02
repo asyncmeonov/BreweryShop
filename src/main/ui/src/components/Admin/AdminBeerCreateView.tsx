@@ -24,10 +24,10 @@ import {
   InputLabel,
   NativeSelect,
   IconButton,
-  Snackbar,
-  Color
+  Snackbar
 } from "@material-ui/core";
 import React from "react";
+import { getGlobalIsAdmin, getGlobalToken } from "../../window";
 
 function Alert(props: AlertProps) {
   return <MuiAlert elevation={6} variant="filled" {...props} />;
@@ -102,7 +102,7 @@ const AdminBeerCreateView = (props: {refetch: ()=>{}}) => {
     setModelCount(modelCount - 1);
   };
 
-  if (window.token === undefined || !window.isAdmin) {
+  if (getGlobalToken() === undefined || !getGlobalIsAdmin()) {
     return (
       <div>
         You don't have a valid license. Go back to the <a href="/">homepage</a>

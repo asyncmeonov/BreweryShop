@@ -8,6 +8,7 @@ import { Wrapper } from "./OrderView.style";
 import { BeerType, Order } from "../interfaces";
 import { post } from "../Http";
 import { useHistory } from "react-router-dom";
+import { getGlobalToken } from "../../window";
 
 
 function isValidField(field: string | undefined): boolean {
@@ -41,7 +42,7 @@ const OrderView = () => {
     }
   }
 
-  if (window.token === undefined) {
+  if (getGlobalToken() === undefined) {
     return (
       <Wrapper>
         <div>You don't have a valid license. Go back to the <a href="/">homepage</a></div>

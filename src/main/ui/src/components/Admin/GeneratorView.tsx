@@ -24,6 +24,7 @@ import {
   GridColDef,
   GridRowSelectedParams,
 } from "@material-ui/data-grid";
+import { getGlobalIsAdmin, getGlobalToken } from "../../window";
 
 type LicenseRow = {
   id: string
@@ -69,7 +70,7 @@ const GeneratorView = () => {
     { field: "expiryDate", headerName: "Expiry Date", width: 150 },
   ];
 
-  if (window.token === undefined || !window.isAdmin) {
+  if (getGlobalToken() === undefined || !getGlobalIsAdmin()) {
     return (
       <Wrapper>
         <div>

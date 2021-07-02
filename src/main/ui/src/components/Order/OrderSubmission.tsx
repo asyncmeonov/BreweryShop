@@ -15,6 +15,7 @@ const OrderSubmission = (props: SubmissionProps) => {
             <div>
               <h1>Order was received!</h1>
               <div>{message}</div>
+              <h3>Your order number is the confirmation for your order. Make sure you write it down</h3>
             </div>
           )
         }

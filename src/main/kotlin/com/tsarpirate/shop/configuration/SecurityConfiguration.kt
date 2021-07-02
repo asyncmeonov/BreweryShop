@@ -30,7 +30,7 @@ class SecurityConfiguration(
         http.cors().and().csrf().disable().authorizeRequests()
             .antMatchers(
                 HttpMethod.GET,
-                "/","/index*", "/static/**", "/*.js", "/*.json", "/*.ico","/*.png")
+                "/","/index*", "/static/**", "/*.js", "/*.json", "/*.ico","/*.png", "/error*")
             .permitAll()
             .anyRequest().authenticated()
             .and()

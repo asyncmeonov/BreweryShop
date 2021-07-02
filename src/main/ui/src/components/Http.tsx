@@ -1,8 +1,10 @@
+import { getGlobalToken } from "../window";
+
 const base = "";
 
 async function get<T>(url: string): Promise<T> {
   let headers = new Headers({ "Content-Type": "application/json" });
-  headers.append("Authorization", "Bearer " + window.token);
+  headers.append("Authorization", "Bearer " + getGlobalToken());
 
   return await (await fetch(base + url, { headers: headers })).json();
 }
@@ -10,7 +12,7 @@ async function get<T>(url: string): Promise<T> {
 //returns a response, should be handled in caller
 async function post(url: string, content: any): Promise<Response> {
   let headers = new Headers({ "Content-Type": "application/json" });
-  headers.append("Authorization", "Bearer " + window.token);
+  headers.append("Authorization", "Bearer " + getGlobalToken());
 
   return (await fetch(base + url, {
     method: "POST",
@@ -21,7 +23,7 @@ async function post(url: string, content: any): Promise<Response> {
 
 async function remove(url: string, content: any): Promise<Response> {
   let headers = new Headers({ "Content-Type": "application/json" });
-  headers.append("Authorization", "Bearer " + window.token);
+  headers.append("Authorization", "Bearer " + getGlobalToken());
 
   return (await fetch(base + url, {
     method: "DELETE",

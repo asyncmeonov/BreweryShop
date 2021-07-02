@@ -164,9 +164,6 @@ const AdminBeerView = () => {
     getBeers
   );
 
-  console.log("token "+getGlobalToken())
-  console.log("isAdmin "+getGlobalIsAdmin())
-  console.log("license "+getGlobalLicense())
   if (isLoading) return <LinearProgress />;
   if (error) return <div> Something went wrong... {error} </div>;
 

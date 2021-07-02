@@ -8,7 +8,7 @@ declare global {
 }
 
 const set = (key: string, value: string) => {
-  let expiryMinutes = 0.5;
+  let expiryMinutes = 30;
   let expirationDate = new Date(new Date().getTime() + (60000 * expiryMinutes));
   window.sessionStorage.setItem("expiration_date", expirationDate.toISOString());
   window.sessionStorage.setItem(key, value);

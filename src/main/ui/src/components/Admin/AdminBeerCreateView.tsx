@@ -33,6 +33,12 @@ function Alert(props: AlertProps) {
   return <MuiAlert elevation={6} variant="filled" {...props} />;
 }
 
+function formatPrice(val: string) {
+  return parseInt(val) < 0
+    ? "0"
+    : val
+}
+
 const getLicenseTypes = async (): Promise<string[]> => {
   let response = get<License[]>("/admin/license");
   return (await response).map((license) => license.type);
@@ -40,8 +46,9 @@ const getLicenseTypes = async (): Promise<string[]> => {
 
 const postBeer = async (beerRequest: AdminBeerRequest) => await post("/admin/beers", beerRequest);
 
-const AdminBeerCreateView = (props: {refetch: ()=>{}}) => {
-  let {refetch} = props
+
+const AdminBeerCreateView = (props: { refetch: () => {} }) => {
+  let { refetch } = props
   //Dialog form hooks
   const [open, setOpen] = useState(false);
   const handleClickOpen = () => setOpen(true);
@@ -171,6 +178,7 @@ const AdminBeerCreateView = (props: {refetch: ()=>{}}) => {
                 label="Size (ml)"
                 fullWidth
                 type="number"
+                onChange={(event) => event.target.value = formatPrice(event.target.value)}
               />
             )}
           />
@@ -184,6 +192,7 @@ const AdminBeerCreateView = (props: {refetch: ()=>{}}) => {
                 label="Amount In Stock"
                 fullWidth
                 type="number"
+                onChange={(event) => event.target.value = formatPrice(event.target.value)}
               />
             )}
           />
@@ -197,6 +206,7 @@ const AdminBeerCreateView = (props: {refetch: ()=>{}}) => {
                 label="Amount Available for Purchase by clients"
                 fullWidth
                 type="number"
+                onChange={(event) => event.target.value = formatPrice(event.target.value)}
               />
             )}
           />
@@ -218,9 +228,10 @@ const AdminBeerCreateView = (props: {refetch: ()=>{}}) => {
               <TextField
                 {...field}
                 margin="dense"
-                label="Default Price (only usable if the beer is available by default)"
+                label="Default Price in stotinki (if available by default)"
                 fullWidth
                 type="number"
+                onChange={(event) => event.target.value = formatPrice(event.target.value)}
               />
             )}
           />
@@ -243,7 +254,7 @@ const AdminBeerCreateView = (props: {refetch: ()=>{}}) => {
                   <NativeSelect
                     {...register(
                       `priceModels.${i}.licenseType`
-                    )} // as `priceModels.${number}.licenseType`
+                    )}
                     value={licenseMap.get(i)}
                     onChange={e => { handleChange(e, i) }}
                   >
@@ -259,10 +270,11 @@ const AdminBeerCreateView = (props: {refetch: ()=>{}}) => {
                   <TextField
                     type="number"
                     key={`${i}-price`}
-                    label="Price (bgn)"
+                    label="Price (stotinki)"
                     {...register(
                       `priceModels.${i}.price`
-                    )} // as `priceModels.${number}.price`
+                    )}
+                    onChange={(event) => event.target.value = formatPrice(event.target.value)}
                   />
                   <IconButton
                     key={`${i}-delete`}

@@ -129,58 +129,86 @@ const AdminBeerCreateView = (props: { refetch: () => {} }) => {
       >
         <DialogTitle id="form-dialog-title">Create Beer</DialogTitle>
         <DialogContent>
-          <TextField
-            {...register("name")}
+          <Controller
             name="name"
-            autoFocus
-            margin="dense"
-            label="Name"
-            fullWidth
+            control={control}
+            render={({ field }) => (
+              <TextField
+                {...field}
+                autoFocus
+                margin="dense"
+                label="Name"
+                fullWidth
+              />
+            )}
           />
-          <TextField
-            {...register("description")}
+          <Controller
             name="description"
-            margin="dense"
-            label="Description"
-            fullWidth
-            multiline
+            control={control}
+            render={({ field }) => (
+              <TextField
+                {...field}
+                margin="dense"
+                label="Description"
+                fullWidth
+                multiline
+              />
+            )}
           />
-          <TextField
-            {...register("label")}
+          <Controller
             name="label"
-            margin="dense"
-            label="Label URL"
-            fullWidth
-            type="url"
+            control={control}
+            render={({ field }) => (
+              <TextField
+                {...field}
+                margin="dense"
+                label="Label URL"
+                fullWidth
+                type="url"
+              />
+            )}
           />
-
-          <TextField
-            {...register("size")}
+          <Controller
             name="size"
-            margin="dense"
-            label="Size (ml)"
-            fullWidth
-            type="number"
-            onChange={(event) => event.target.value = formatPrice(event.target.value)}
+            control={control}
+            render={({ field }) => (
+              <TextField
+                {...field}
+                margin="dense"
+                label="Size (ml)"
+                fullWidth
+                type="number"
+                onChange={(event) => event.target.value = formatPrice(event.target.value)}
+              />
+            )}
           />
-          <TextField
-            {...register("amountInStock")}
+          <Controller
             name="amountInStock"
-            margin="dense"
-            label="Amount In Stock"
-            fullWidth
-            type="number"
-            onChange={(event) => event.target.value = formatPrice(event.target.value)}
+            control={control}
+            render={({ field }) => (
+              <TextField
+                {...field}
+                margin="dense"
+                label="Amount In Stock"
+                fullWidth
+                type="number"
+                onChange={(event) => event.target.value = formatPrice(event.target.value)}
+              />
+            )}
           />
-
-          <TextField
-            {...register("amountAvailable")}
+          <Controller
             name="amountAvailable"
-            margin="dense"
-            label="Amount Available for Purchase by clients"
-            fullWidth
-            type="number"
-            onChange={(event) => event.target.value = formatPrice(event.target.value)}
+            control={control}
+            render={({ field }) => (
+              <TextField
+                {...field}
+                margin="dense"
+                label="Amount Available for Purchase by clients"
+                fullWidth
+                type="number"
+                onChange={(event) => event.target.value = formatPrice(event.target.value)}
+              />
+            )}
           />
           <Controller
             name="availableByDefault"
@@ -192,16 +220,20 @@ const AdminBeerCreateView = (props: { refetch: () => {} }) => {
                 label="Is it available by default? (i.e. if a license model doesn't exist for it)"
               />
             )}
-            />
-          <TextField
-            {...register(
-              "defaultPrice"
+          />
+          <Controller
+            name="defaultPrice"
+            control={control}
+            render={({ field }) => (
+              <TextField
+                {...field}
+                margin="dense"
+                label="Default Price in stotinki (if available by default)"
+                fullWidth
+                type="number"
+                onChange={(event) => event.target.value = formatPrice(event.target.value)}
+              />
             )}
-            margin="dense"
-            label="Default Price in stotinki (if available by default)"
-            fullWidth
-            type="number"
-            onChange={(event) => event.target.value = formatPrice(event.target.value)}
           />
           <IconButton
             aria-label="add-price-model"

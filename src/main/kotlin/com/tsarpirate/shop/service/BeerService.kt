@@ -34,7 +34,7 @@ class BeerService(private val beerRepo: BeerRepository) {
             )
             when {
                 license != null -> template.copy(price = license.price)
-                it.isAvailableByDefault -> template.copy(price = it.defaultPrice)
+                it.availableByDefault -> template.copy(price = it.defaultPrice)
                 else -> null
             }
         }
@@ -51,7 +51,7 @@ class BeerService(private val beerRepo: BeerRepository) {
         label = beerRequest.label,
         priceModels = beerRequest.priceModels.mapNotNull { it },
         size = beerRequest.size,
-        isAvailableByDefault = beerRequest.isAvailableByDefault))
+        availableByDefault = beerRequest.availableByDefault))
 
 
     //Admin operation

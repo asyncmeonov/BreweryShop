@@ -40,14 +40,13 @@ const getLicenseTypes = async (): Promise<string[]> => {
 
 const postBeer = async (beerRequest: AdminBeerRequest) => await post("/admin/beers", beerRequest);
 
-const AdminBeerCreateView = (props: {refetch: ()=>{}}) => {
-  let {refetch} = props
+const AdminBeerCreateView = (props: { refetch: () => {} }) => {
+  let { refetch } = props
   //Dialog form hooks
   const [open, setOpen] = useState(false);
   const handleClickOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
   const {
-    register,
     control,
     handleSubmit,
     unregister,
@@ -67,6 +66,8 @@ const AdminBeerCreateView = (props: {refetch: ()=>{}}) => {
   };
 
   const onSubmit = handleSubmit(async (data) => {
+    data.priceModels = data.priceModels.filter(model => model !== null);
+    console.log(JSON.stringify(data));
     let response = await postBeer(data);
     if (response.ok) {
       setPopupMessage(`Created ${data.name} ${data.size}ml`);
@@ -84,22 +85,16 @@ const AdminBeerCreateView = (props: {refetch: ()=>{}}) => {
   });
 
   //(Dynamic fields) License models for a beer
-  const [modelCount, setModelCount] = useState(0);
   const { data } = useQuery<string[]>("License", getLicenseTypes);
-  const [licenseMap] = useState(new Map());
+  const [licenseList, setLicenseList] = useState<(string | null)[]>([]);
 
-  const handleChange = (event: React.ChangeEvent<{ value: unknown }>, key: number) => {
-    handleAdd(key, event.target.value as string)
-  };
-
-  const handleAdd = (key: number, value: string) => {
-    licenseMap.set(key, value)
-    setModelCount(modelCount + 1); //I have no clue why this works but if you don't update a variable with a state hook, the license map would not update in the UI
+  const handleAdd = (value: string) => {
+    setLicenseList([...licenseList, value]);
   }
 
   const handleDelete = (key: number) => {
-    licenseMap.delete(key);
-    setModelCount(modelCount - 1);
+    const newList = licenseList.map((old, index) => index === key ? null : old);
+    setLicenseList(newList);
   };
 
   if (getGlobalToken() === undefined || !getGlobalIsAdmin()) {
@@ -206,7 +201,7 @@ const AdminBeerCreateView = (props: {refetch: ()=>{}}) => {
             render={({ field }) => (
               <FormControlLabel
                 {...field}
-                control={<Checkbox name="checkedD" />}
+                control={<Checkbox checked={field.value} name="checkedD" />} //The checked field is there to persists last value b/w creations
                 label="Is it available by default? (i.e. if a license model doesn't exist for it)"
               />
             )}
@@ -218,7 +213,7 @@ const AdminBeerCreateView = (props: {refetch: ()=>{}}) => {
               <TextField
                 {...field}
                 margin="dense"
-                label="Default Price (only usable if the beer is available by default)"
+                label="Default Price in stotinki (if available by default)"
                 fullWidth
                 type="number"
               />
@@ -228,57 +223,65 @@ const AdminBeerCreateView = (props: {refetch: ()=>{}}) => {
             aria-label="add-price-model"
             color="primary"
             onClick={() => {
-              handleAdd(licenseMap.size, "");
+              handleAdd("");
             }}
           >
             <AddIcon />
           </IconButton>
-          {Array.from(licenseMap.keys()).map((i) => {
-            return (
-              <div key={i}>
-                <InputLabel>License Type</InputLabel>
-                <div
-                  style={{ display: "flex", justifyContent: "space-between" }}
-                >
-                  <NativeSelect
-                    {...register(
-                      `priceModels.${i}.licenseType`
-                    )} // as `priceModels.${number}.licenseType`
-                    value={licenseMap.get(i)}
-                    onChange={e => { handleChange(e, i) }}
+          {licenseList.map((lic, i) => {
+            if (lic !== null) {
+              return (
+                <div key={i}>
+                  <InputLabel>License Type</InputLabel>
+                  <div
+                    style={{ display: "flex", justifyContent: "space-between" }}
                   >
-                    <option
-                      key="none" value=""></option>
-                    {data?.map((licenseType) => (
-                      <option
-                        key={`${i}-${licenseType}`} value={licenseType}>
-                        {licenseType}
-                      </option>
-                    ))}
-                  </NativeSelect>
-                  <TextField
-                    type="number"
-                    key={`${i}-price`}
-                    label="Price (bgn)"
-                    {...register(
-                      `priceModels.${i}.price`
-                    )} // as `priceModels.${number}.price`
-                  />
-                  <IconButton
-                    key={`${i}-delete`}
-                    aria-label="delete"
-                    color="primary"
-                    onClick={() => {
-                      unregister((`priceModels.${i}.licenseType`) as `priceModels.${number}.licenseType`);
-                      unregister((`priceModels.${i}.price`) as `priceModels.${number}.price`);
-                      handleDelete(i);
-                    }}
-                  >
-                    <DeleteIcon />
-                  </IconButton>
+                    <Controller
+                      name={`priceModels.${i}.licenseType`}
+                      control={control}
+                      render={({ field }) => (
+                        <NativeSelect
+                          {...field}
+                          value={field.value}
+                        >
+                          <option
+                            key="none" value=""></option>
+                          {data?.map((licenseType) => (
+                            <option
+                              key={`${i}-${licenseType}`} value={licenseType}>
+                              {licenseType}
+                            </option>
+                          ))}
+                        </NativeSelect>)}
+                    />
+                    <Controller
+                      name={`priceModels.${i}.price`}
+                      control={control}
+                      render={({ field }) => (
+                        <TextField
+                          {...field}
+                          type="number"
+                          key={`${i}-price`}
+                          label="Price (stotinki)"
+                          value={field.value}
+                        />)}
+                    />
+                    <IconButton
+                      key={`${i}-delete`}
+                      aria-label="delete"
+                      color="primary"
+                      onClick={() => {
+                        unregister((`priceModels.${i}.licenseType`) as `priceModels.${number}.licenseType`);
+                        unregister((`priceModels.${i}.price`) as `priceModels.${number}.price`);
+                        handleDelete(i);
+                      }}
+                    >
+                      <DeleteIcon />
+                    </IconButton>
+                  </div>
                 </div>
-              </div>
-            );
+              );
+            }
           })}
         </DialogContent>
         <DialogActions>

@@ -12,7 +12,7 @@ import java.util.UUID
  * @param size in ml
  * @param defaultPrice the default price if retrieving with a license that has not been specified in the priceModels
  * @param priceModels different (price, license) pairs for the
- * @param isAvailableByDefault flag for premium/secret beers that require a particular license.
+ * @param availableByDefault flag for premium/secret beers that require a particular license.
  * If true, it will be displayed by default, if false, you would need a license in priceModels to obtain this beer
  */
 data class Beer(
@@ -25,7 +25,7 @@ data class Beer(
     val size: Int,
     val defaultPrice: Int,
     val priceModels: List<PriceModel>,
-    val isAvailableByDefault: Boolean
+    val availableByDefault: Boolean
 ) {
     fun hasPriceModelForLicense(licenseType: String): Boolean = priceModels.any { it.licenseType == licenseType }
 }
@@ -39,5 +39,5 @@ data class BeerRequest(
     val size: Int,
     val defaultPrice: Int,
     val priceModels: List<PriceModel?>,
-    val isAvailableByDefault: Boolean
+    val availableByDefault: Boolean
 )

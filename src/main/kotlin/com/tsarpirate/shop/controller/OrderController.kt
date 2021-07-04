@@ -91,7 +91,7 @@ class OrderController(val orderService: OrderService, val beerService: BeerServi
             .body("Invalid order. One or more beers you've selected are not served currently.")
         val outOfStock = beersAndAmount.filter { (amount, beer) -> amount > beer!!.amountAvailable }
         if (outOfStock.isNotEmpty()) return buildOutOfStockResponse(outOfStock)
-        if (beersAndAmount.any { (_, beer) -> !beer!!.isAvailableByDefault && !beer.hasPriceModelForLicense(licenseType) })
+        if (beersAndAmount.any { (_, beer) -> !beer!!.availableByDefault && !beer.hasPriceModelForLicense(licenseType) })
             return ResponseEntity //TODO test
                 .badRequest()
                 .body(

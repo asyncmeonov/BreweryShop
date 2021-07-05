@@ -18,7 +18,7 @@ const BeerCard: React.FC<Props> = ({beer, addToCart}) => {
             <img src={beer.label} alt="beer label"></img>
         </BeerCardDiv>
         <BeerCardDiv style={{flex:1}}>
-            <h4><i>roughly {beer.amountAvailable} left</i></h4>
+            <h4><i>{beer.amountAvailable} left</i></h4>
             <h3>{beer.name}</h3>
             <h3>{beer.size}ml</h3>
             <h3>{formatPrice(beer.price)} lev</h3>

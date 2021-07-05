@@ -42,6 +42,20 @@ const useRowStyles = makeStyles({
   },
 });
 
+type SelectProps = {
+  handleSelect: (beer: AdminBeer) => void,
+  isSelected: (beer: AdminBeer) => boolean,
+  refetch: () => {}
+}
+
+type RowProps = SelectProps & {
+  row: AdminBeer
+}
+
+type TableProps = SelectProps & {
+  data: AdminBeer[] | undefined
+}
+
 type DeletePopupProps = {
   open: boolean,
   row: AdminBeer,
@@ -88,8 +102,8 @@ const DeletePopup = (props: DeletePopupProps) => {
   )
 }
 
-function Row(props: { row: AdminBeer, refetch: () => {} }) {
-  const { row } = props;
+function Row(props: RowProps) {
+  const { row, refetch, isSelected, handleSelect } = props;
   const [open, setOpen] = useState(false);
   const [deletePopup, setDeletePopup] = useState(false);
   const classes = useRowStyles();
@@ -97,12 +111,12 @@ function Row(props: { row: AdminBeer, refetch: () => {} }) {
 
   const handleDelete = () => {
     setDeletePopup(false);
-    props.refetch();
+    refetch();
   }
 
   return (
     <React.Fragment>
-      <TableRow className={classes.root}>
+      <TableRow className={classes.root} selected={isSelected(row)} onClick={() => handleSelect(row)}>
         <TableCell>
           <IconButton
             aria-label="expand row"
@@ -174,6 +188,15 @@ const AdminBeerView = () => {
     "AdminBeer",
     getBeers
   );
+  const [selected, setSelected] = useState<AdminBeer | undefined>();
+  const handleSelect = (beer: AdminBeer) => {
+    if (beer === selected) {
+      setSelected(undefined);
+    } else {
+      setSelected(beer);
+    }
+  }
+  const isSelected = (beer: AdminBeer) => selected !== undefined && selected.id === beer.id;
 
   if (isLoading) return <LinearProgress />;
   if (error) return <div> Something went wrong... {error} </div>;
@@ -194,15 +217,15 @@ const AdminBeerView = () => {
       <CustomAppBar />
       <Box display="flex">
         <AdminBeerCreateView {...{ Alert, refetch, getLicenseTypes }} />
-        <AdminBeerEditView {...{ Alert, refetch, getLicenseTypes }} />
+        <AdminBeerEditView {...{ Alert, refetch, getLicenseTypes, selected }} />
       </Box>
-      <AdminTableView data={data} refetch={refetch} />
+      <AdminTableView {...{ data, refetch, handleSelect, isSelected }} />
     </Wrapper>
   );
 };
 
-const AdminTableView = (props: { data: AdminBeer[] | undefined, refetch: () => {} }) => {
-  const { data, refetch } = props;
+const AdminTableView = (props: TableProps) => {
+  const { data, refetch, handleSelect, isSelected } = props;
   return (
     <TableContainer component={Paper}>
       <Table aria-label="beer table">
@@ -220,8 +243,8 @@ const AdminTableView = (props: { data: AdminBeer[] | undefined, refetch: () => {
           </TableRow>
         </TableHead>
         <TableBody>
-          {data?.map((row, i) => (
-            <Row key={`${row.name}-${i}`} row={row} refetch={refetch} />
+          {data?.map((row, i) =>(
+            <Row key={`${row.name}-${i}`} {...{ row, refetch, handleSelect, isSelected }} />
           ))}
         </TableBody>
       </Table>

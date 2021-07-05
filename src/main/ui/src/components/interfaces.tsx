@@ -29,7 +29,7 @@ export interface PriceModel {
 }
 
 export interface BaseLicense {
-    license:string
+    license: string
 }
 
 export interface License extends BaseLicense {
@@ -58,4 +58,4 @@ export interface AdminOrder extends Order {
     notes?: string
 }
 
-export {}
+export { }

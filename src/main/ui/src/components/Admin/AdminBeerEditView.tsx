@@ -6,9 +6,10 @@ import DeleteIcon from "@material-ui/icons/Delete";
 import AddIcon from "@material-ui/icons/Add";
 //styles
 import {
-  AdminBeerRequest
+  AdminBeer,
+  PriceModel
 } from "../interfaces";
-import {  post } from "../Http";
+import {  put } from "../Http";
 import { useQuery } from "react-query";
 import {
   Box,
@@ -28,20 +29,34 @@ import React from "react";
 import { getGlobalIsAdmin, getGlobalToken } from "../../window";
 import { BeerFormProps } from "../types";
 
-const postBeer = async (beerRequest: AdminBeerRequest) => await post("/admin/beers", beerRequest);
+type EditBeerFormProps = BeerFormProps & {
+  selected: AdminBeer | undefined
+}
 
-const AdminBeerEditView = (props: BeerFormProps) => {
-  let { Alert, getLicenseTypes, refetch } = props
+const putBeer = async (beer: AdminBeer) => await put("/admin/beers", beer);
+
+const AdminBeerEditView = (props: EditBeerFormProps) => {
+  let { Alert, getLicenseTypes, refetch, selected } = props
+    //(Dynamic fields) License models for a beer
+    const { data } = useQuery<string[]>("License", getLicenseTypes);
+    const [licenseList, setLicenseList] = useState<(string | null)[]>([]);
   //Dialog form hooks
   const [open, setOpen] = useState(false);
-  const handleClickOpen = () => setOpen(true);
-  const handleClose = () => setOpen(false);
+  const handleClickOpen = () => {
+    reset();
+    if(selected !== undefined) setLicenseList(new Array(selected.priceModels.length).fill(""));
+    setOpen(true);
+  }
+  const handleClose = () => {
+    setOpen(false);
+  }
   const {
     control,
+    reset,
     handleSubmit,
     unregister,
     formState: { errors },
-  } = useForm<AdminBeerRequest>();
+  } = useForm<AdminBeer>();
 
   //popup related hooks
   const [popupOpen, setPopuptOpen] = useState(false);
@@ -57,9 +72,9 @@ const AdminBeerEditView = (props: BeerFormProps) => {
 
   const onSubmit = handleSubmit(async (data) => {
     data.priceModels = (data.priceModels !== undefined) ? data.priceModels.filter(model => model !== null) : [];
-    let response = await postBeer(data);
+    let response = await putBeer(data);
     if (response.ok) {
-      setPopupMessage(`Created ${data.name} ${data.size}ml`);
+      setPopupMessage(`Edited ${selected?.id} ${data.name} ${data.size}ml`);
       setIsError(false);
       setPopuptOpen(true);
       setOpen(false);
@@ -73,13 +88,12 @@ const AdminBeerEditView = (props: BeerFormProps) => {
     }
   });
 
-  //(Dynamic fields) License models for a beer
-  const { data } = useQuery<string[]>("License", getLicenseTypes);
-  const [licenseList, setLicenseList] = useState<(string | null)[]>([]);
-
   const handleAdd = (value: string) => {
     setLicenseList([...licenseList, value]);
   }
+
+  const handleLicenseValue = (value: PriceModel | undefined) =>  (value !== undefined)? value.licenseType : "";
+  const handlePriceValue = (value: PriceModel | undefined) =>  (value !== undefined)? value.price : 0;
 
   const handleDelete = (key: number) => {
     const newList = licenseList.map((old, index) => index === key ? null : old);
@@ -96,7 +110,7 @@ const AdminBeerEditView = (props: BeerFormProps) => {
 
   return (
     <Box>
-      <Button variant="outlined" color="primary" onClick={() => { handleClickOpen() }}>
+      <Button variant="outlined" color="primary" disabled={(selected === undefined)} onClick={() => { handleClickOpen() }}>
         Edit Beer
       </Button>
       <Dialog
@@ -106,9 +120,25 @@ const AdminBeerEditView = (props: BeerFormProps) => {
       >
         <DialogTitle id="form-dialog-title">Edit Beer</DialogTitle>
         <DialogContent>
+        <Controller
+            name="id"
+            control={control}
+            defaultValue={selected?.id}
+            render={({ field }) => (
+              <TextField
+                {...field}
+                autoFocus
+                margin="dense"
+                disabled={true}
+                label="Unique ID in database (this cannot change)"
+                fullWidth
+              />
+            )}
+          />
           <Controller
             name="name"
             control={control}
+            defaultValue={selected?.name}
             render={({ field }) => (
               <TextField
                 {...field}
@@ -122,6 +152,7 @@ const AdminBeerEditView = (props: BeerFormProps) => {
           <Controller
             name="description"
             control={control}
+            defaultValue={selected?.description}
             render={({ field }) => (
               <TextField
                 {...field}
@@ -135,6 +166,7 @@ const AdminBeerEditView = (props: BeerFormProps) => {
           <Controller
             name="label"
             control={control}
+            defaultValue={selected?.label}
             render={({ field }) => (
               <TextField
                 {...field}
@@ -148,6 +180,7 @@ const AdminBeerEditView = (props: BeerFormProps) => {
           <Controller
             name="size"
             control={control}
+            defaultValue={selected?.size}
             render={({ field }) => (
               <TextField
                 {...field}
@@ -161,6 +194,7 @@ const AdminBeerEditView = (props: BeerFormProps) => {
           <Controller
             name="amountInStock"
             control={control}
+            defaultValue={selected?.amountInStock}
             render={({ field }) => (
               <TextField
                 {...field}
@@ -174,6 +208,7 @@ const AdminBeerEditView = (props: BeerFormProps) => {
           <Controller
             name="amountAvailable"
             control={control}
+            defaultValue={selected?.amountAvailable}
             render={({ field }) => (
               <TextField
                 {...field}
@@ -187,10 +222,11 @@ const AdminBeerEditView = (props: BeerFormProps) => {
           <Controller
             name="availableByDefault"
             control={control}
+            defaultValue={selected?.availableByDefault}
             render={({ field }) => (
               <FormControlLabel
                 {...field}
-                control={<Checkbox checked={field.value} name="checkedD" />} //The checked field is there to persists last value b/w creations
+                control={<Checkbox defaultChecked={selected?.availableByDefault} name="checkedD" />} //The checked field is there to persists last value b/w creations
                 label="Is it available by default? (i.e. if a license model doesn't exist for it)"
               />
             )}
@@ -198,6 +234,7 @@ const AdminBeerEditView = (props: BeerFormProps) => {
           <Controller
             name="defaultPrice"
             control={control}
+            defaultValue={selected?.defaultPrice}
             render={({ field }) => (
               <TextField
                 {...field}
@@ -228,10 +265,10 @@ const AdminBeerEditView = (props: BeerFormProps) => {
                     <Controller
                       name={`priceModels.${i}.licenseType`}
                       control={control}
+                      defaultValue={handleLicenseValue(selected?.priceModels[i])}
                       render={({ field }) => (
                         <NativeSelect
                           {...field}
-                          value={field.value}
                         >
                           <option
                             key="none" value=""></option>
@@ -246,13 +283,13 @@ const AdminBeerEditView = (props: BeerFormProps) => {
                     <Controller
                       name={`priceModels.${i}.price`}
                       control={control}
+                      defaultValue={handlePriceValue(selected?.priceModels[i])}
                       render={({ field }) => (
                         <TextField
                           {...field}
                           type="number"
                           key={`${i}-price`}
                           label="Price (stotinki)"
-                          value={field.value}
                         />)}
                     />
                     <IconButton
@@ -278,7 +315,7 @@ const AdminBeerEditView = (props: BeerFormProps) => {
             Cancel
           </Button>
           <Button onClick={(e) => { onSubmit(e) }} color="primary">
-            Create Beer
+            Edit Beer
           </Button>
         </DialogActions>
       </Dialog>

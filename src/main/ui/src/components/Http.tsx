@@ -32,5 +32,15 @@ async function remove(url: string, content: any): Promise<Response> {
   }));
 }
 
+async function put(url: string, content: any): Promise<Response> {
+  let headers = new Headers({ "Content-Type": "application/json" });
+  headers.append("Authorization", "Bearer " + getGlobalToken());
 
-export { get, post, remove };
+  return (await fetch(base + url, {
+    method: "PUT",
+    headers: headers,
+    body: JSON.stringify(content)
+  }));
+}
+
+export { get, post, remove, put };

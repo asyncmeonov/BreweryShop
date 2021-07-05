@@ -6,9 +6,9 @@ import DeleteIcon from "@material-ui/icons/Delete";
 import AddIcon from "@material-ui/icons/Add";
 //styles
 import {
-  AdminBeerRequest,
+  AdminBeerRequest
 } from "../interfaces";
-import { post } from "../Http";
+import {  post } from "../Http";
 import { useQuery } from "react-query";
 import {
   Box,
@@ -30,7 +30,7 @@ import { BeerFormProps } from "../types";
 
 const postBeer = async (beerRequest: AdminBeerRequest) => await post("/admin/beers", beerRequest);
 
-const AdminBeerCreateView = (props: BeerFormProps) => {
+const AdminBeerEditView = (props: BeerFormProps) => {
   let { Alert, getLicenseTypes, refetch } = props
   //Dialog form hooks
   const [open, setOpen] = useState(false);
@@ -57,7 +57,6 @@ const AdminBeerCreateView = (props: BeerFormProps) => {
 
   const onSubmit = handleSubmit(async (data) => {
     data.priceModels = (data.priceModels !== undefined) ? data.priceModels.filter(model => model !== null) : [];
-
     let response = await postBeer(data);
     if (response.ok) {
       setPopupMessage(`Created ${data.name} ${data.size}ml`);
@@ -98,14 +97,14 @@ const AdminBeerCreateView = (props: BeerFormProps) => {
   return (
     <Box>
       <Button variant="outlined" color="primary" onClick={() => { handleClickOpen() }}>
-        Create Beer
+        Edit Beer
       </Button>
       <Dialog
         open={open}
         onClose={handleClose}
         aria-labelledby="form-dialog-title"
       >
-        <DialogTitle id="form-dialog-title">Create Beer</DialogTitle>
+        <DialogTitle id="form-dialog-title">Edit Beer</DialogTitle>
         <DialogContent>
           <Controller
             name="name"
@@ -295,4 +294,4 @@ const AdminBeerCreateView = (props: BeerFormProps) => {
   );
 };
 
-export default AdminBeerCreateView;
+export default AdminBeerEditView;

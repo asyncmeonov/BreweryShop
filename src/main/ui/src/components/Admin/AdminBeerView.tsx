@@ -3,7 +3,7 @@ import { useState } from "react";
 import LinearProgress from "@material-ui/core/LinearProgress";
 //styles
 import { Wrapper } from "./AdminOrderView.style";
-import { AdminBeer } from "../interfaces";
+import { AdminBeer, License } from "../interfaces";
 import { get, remove } from "../Http";
 import CustomAppBar from "../CustomAppBar";
 import { useQuery } from "react-query";
@@ -30,7 +30,9 @@ import React from "react";
 import KeyboardArrowDownIcon from "@material-ui/icons/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@material-ui/icons/KeyboardArrowUp";
 import AdminBeerCreateView from "./AdminBeerCreateView";
-import { formatPrice, getGlobalIsAdmin, getGlobalLicense, getGlobalToken } from "../../window";
+import { formatPrice, getGlobalIsAdmin, getGlobalToken } from "../../window";
+import AdminBeerEditView from "./AdminBeerEditView";
+import MuiAlert, { AlertProps } from "@material-ui/lab/Alert";
 
 const useRowStyles = makeStyles({
   root: {
@@ -46,11 +48,20 @@ type DeletePopupProps = {
   onClose: () => void
 }
 
+function Alert(props: AlertProps) {
+  return <MuiAlert elevation={6} variant="filled" {...props} />;
+}
+
+const getLicenseTypes = async (): Promise<string[]> => {
+  let response = get<License[]>("/admin/license");
+  return (await response).map((license) => license.type);
+};
+
 const DeletePopup = (props: DeletePopupProps) => {
   const { row, open, onClose } = props
   const onSubmit = async () => {
     let response = remove("/admin/beers/" + row.id, null);
-    if(await response){
+    if (await response) {
       onClose();
     }
   };
@@ -182,15 +193,16 @@ const AdminBeerView = () => {
     <Wrapper>
       <CustomAppBar />
       <Box display="flex">
-        <AdminBeerCreateView refetch={refetch} />
+        <AdminBeerCreateView {...{ Alert, refetch, getLicenseTypes }} />
+        <AdminBeerEditView {...{ Alert, refetch, getLicenseTypes }} />
       </Box>
       <AdminTableView data={data} refetch={refetch} />
     </Wrapper>
   );
 };
 
-const AdminTableView = (props: {data: AdminBeer[] | undefined, refetch: ()=>{}}) => {
-  const {data, refetch} = props;
+const AdminTableView = (props: { data: AdminBeer[] | undefined, refetch: () => {} }) => {
+  const { data, refetch } = props;
   return (
     <TableContainer component={Paper}>
       <Table aria-label="beer table">
@@ -209,7 +221,7 @@ const AdminTableView = (props: {data: AdminBeer[] | undefined, refetch: ()=>{}})
         </TableHead>
         <TableBody>
           {data?.map((row, i) => (
-            <Row key={`${row.name}-${i}`} row={row} refetch={refetch}/>
+            <Row key={`${row.name}-${i}`} row={row} refetch={refetch} />
           ))}
         </TableBody>
       </Table>

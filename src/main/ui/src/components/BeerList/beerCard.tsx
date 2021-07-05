@@ -24,8 +24,8 @@ const BeerCard: React.FC<Props> = ({ beer, addToCart }) => {
                 <h3>{formatPrice(beer.price)} lev</h3>
             </BeerCardDiv>
             <BeerCardDiv style={{ flex: 1 }}>
-                {beer.description.split("\n").map(paragraph =>
-                    <p>{paragraph}</p>)}
+                {beer.description.split("\n").map((paragraph, i) =>
+                    <p key={i}>{paragraph}</p>)}
             </BeerCardDiv>
             <BeerCardDiv>
                 <Button

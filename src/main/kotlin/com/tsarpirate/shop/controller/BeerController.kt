@@ -20,7 +20,7 @@ class BeerController(val beerService: BeerService, val licenseService: LicenseSe
     private val logger: Logger = LoggerFactory.getLogger(BeerController::class.java)
 
     @GetMapping("/beers")
-    fun getBeersForLicense(auth:Authentication): List<OrderBeer> {
+    fun getBeersForLicense(auth: Authentication): List<OrderBeer> {
         val licenseVal = auth.name
         val license = licenseService.getLicenseByValue(licenseVal)
         return if (license != null) {
@@ -41,6 +41,12 @@ class BeerController(val beerService: BeerService, val licenseService: LicenseSe
 
     @PostMapping("/admin/beers")
     fun createBeer(@RequestBody beer: BeerRequest): ResponseEntity<Any> {
+        if (beer.priceModels.isEmpty() && !beer.availableByDefault) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+                "Failed creating ${beer.name}. " +
+                        "No license models have been specified and the beer is not available by default. Nobody will see this beer."
+            )
+        }
         if (beer.priceModels.mapNotNull { it?.licenseType }.distinct().size != beer.priceModels.size) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
                 "Failed creating ${beer.name}. " +
@@ -55,7 +61,7 @@ class BeerController(val beerService: BeerService, val licenseService: LicenseSe
     @PutMapping("/admin/beers")
     @PreAuthorize("hasRole('admin')")
     fun updateBeer(@RequestBody beer: Beer): ResponseEntity<String> {
-        if(beerService.getBeerById(beer.id) == null) return ResponseEntity.badRequest()
+        if (beerService.getBeerById(beer.id) == null) return ResponseEntity.badRequest()
             .body("Could not find ${beer.id} to be updated. Make sure that the beer exists.")
         logger.info("Updating ${beer.name}...")
         beerService.updateBeer(beer)
@@ -66,7 +72,7 @@ class BeerController(val beerService: BeerService, val licenseService: LicenseSe
     @PreAuthorize("hasRole('admin')")
     fun deleteBeer(@PathVariable("id") id: String): ResponseEntity<String> {
         val beer = beerService.getBeerById(UUID.fromString(id))
-        if(beer == null) return ResponseEntity.badRequest()
+        if (beer == null) return ResponseEntity.badRequest()
             .body("Could not find $id to be Removed. Make sure you have included the id field of the beer you want deleted. ")
         logger.info("Removing ${beer.name}...")
         beerService.removeBeer(beer.id)

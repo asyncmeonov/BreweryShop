@@ -66,8 +66,8 @@ const AdminBeerCreateView = (props: { refetch: () => {} }) => {
   };
 
   const onSubmit = handleSubmit(async (data) => {
-    data.priceModels = data.priceModels.filter(model => model !== null);
-    console.log(JSON.stringify(data));
+    data.priceModels = (data.priceModels !== undefined) ? data.priceModels.filter(model => model !== null) : [];
+
     let response = await postBeer(data);
     if (response.ok) {
       setPopupMessage(`Created ${data.name} ${data.size}ml`);

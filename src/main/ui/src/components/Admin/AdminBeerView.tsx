@@ -19,12 +19,7 @@ import {
   Table,
   TableBody,
   TableContainer,
-  Paper,
-  Dialog,
-  DialogTitle,
-  DialogActions,
-  Button,
-  DialogContentText
+  Paper
 } from "@material-ui/core";
 import React from "react";
 import KeyboardArrowDownIcon from "@material-ui/icons/KeyboardArrowDown";
@@ -32,7 +27,8 @@ import KeyboardArrowUpIcon from "@material-ui/icons/KeyboardArrowUp";
 import AdminBeerCreateView from "./AdminBeerCreateView";
 import { formatPrice, getGlobalIsAdmin, getGlobalToken } from "../../window";
 import AdminBeerEditView from "./AdminBeerEditView";
-import MuiAlert, { AlertProps } from "@material-ui/lab/Alert";
+import { CustomPopup } from "../../Alert";
+import { PopupProps } from "../types";
 
 const useRowStyles = makeStyles({
   root: {
@@ -56,49 +52,24 @@ type TableProps = SelectProps & {
   data: AdminBeer[] | undefined
 }
 
-type DeletePopupProps = {
-  open: boolean,
-  row: AdminBeer,
-  onClose: () => void
-}
-
-function Alert(props: AlertProps) {
-  return <MuiAlert elevation={6} variant="filled" {...props} />;
-}
-
 const getLicenseTypes = async (): Promise<string[]> => {
   let response = get<License[]>("/admin/license");
   return (await response).map((license) => license.type);
 };
 
-const DeletePopup = (props: DeletePopupProps) => {
-  const { row, open, onClose } = props
-  const onSubmit = async () => {
-    let response = remove("/admin/beers/" + row.id, null);
-    if (await response) {
-      onClose();
-    }
-  };
+const DeletePopup = (props: {row: AdminBeer, open: boolean, onClose: () => void}) => {
+  let {row, open, onClose} = props
+  let popupProps: PopupProps = {
+    title: `Deleting ${row.name}`,
+    contentText: `You are trying to delete ${row.name} ${row.size}ml. This cannot be undone.`,
+    open: open,
+    onClose: onClose,
+    asyncRequest: () =>remove("/admin/beers/" + row.id, null),
+    submitButtonText: "Delete Beer"
+  }
 
   return (
-    <Dialog
-      open={open}
-      onClose={onClose}
-      aria-labelledby="form-dialog-title"
-    >
-      <DialogTitle id="form-dialog-title">Are you sure?</DialogTitle>
-      <DialogContentText>
-        You are trying to delete <b>{row.name} {row.size}ml</b>. This cannot be undone.
-      </DialogContentText>
-      <DialogActions>
-        <Button onClick={onClose} color="primary">
-          Cancel
-        </Button>
-        <Button onClick={onSubmit} color="secondary">
-          Delete Beer
-        </Button>
-      </DialogActions>
-    </Dialog>
+    <CustomPopup {...popupProps} />
   )
 }
 
@@ -149,9 +120,6 @@ function Row(props: RowProps) {
         <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={9}>
           <Collapse in={open} timeout="auto" unmountOnExit>
             <Box margin={1}>
-              {/* <Typography variant="h6" gutterBottom component="div">
-                Price Per License
-              </Typography> */}
               <Table size="small" aria-label="purchases">
                 <TableHead>
                   <TableRow>
@@ -216,8 +184,8 @@ const AdminBeerView = () => {
     <Wrapper>
       <CustomAppBar />
       <Box display="flex">
-        <AdminBeerCreateView {...{ Alert, refetch, getLicenseTypes }} />
-        <AdminBeerEditView {...{ Alert, refetch, getLicenseTypes, selected }} />
+        <AdminBeerCreateView {...{ refetch, getLicenseTypes }} />
+        <AdminBeerEditView {...{ refetch, getLicenseTypes, selected }} />
       </Box>
       <AdminTableView {...{ data, refetch, handleSelect, isSelected }} />
     </Wrapper>
@@ -243,7 +211,7 @@ const AdminTableView = (props: TableProps) => {
           </TableRow>
         </TableHead>
         <TableBody>
-          {data?.map((row, i) =>(
+          {data?.map((row, i) => (
             <Row key={`${row.name}-${i}`} {...{ row, refetch, handleSelect, isSelected }} />
           ))}
         </TableBody>

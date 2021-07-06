@@ -1,6 +1,6 @@
 import { useState } from "react";
 //Components
-import { FormControl, FormHelperText, Input, InputLabel, FormControlLabel, Checkbox, Button } from "@material-ui/core";
+import { FormControl, FormHelperText, Input, InputLabel, Button } from "@material-ui/core";
 import { Container } from '@material-ui/core';
 import  OrderSubmission from "./OrderSubmission";
 //styles
@@ -24,7 +24,6 @@ const OrderView = () => {
   let history = useHistory();
   const [message, setMessage] = useState<string | undefined>(undefined);
   const [isSuccessful, setIsSuccessful] = useState(false);
-  const [isDelivery, setDelivery] = useState(false);
   const [pName, setPirateName] = useState<string | undefined>(undefined);
   const [pContact, setPirateContact] = useState<string | undefined>(undefined);
   const orderedBeers = (history.location.state as {order: BeerType[]}).order

@@ -27,11 +27,12 @@ import {
 import React from "react";
 import { getGlobalIsAdmin, getGlobalToken } from "../../window";
 import { BeerFormProps } from "../types";
+import { Alert } from "../../Alert";
 
 const postBeer = async (beerRequest: AdminBeerRequest) => await post("/admin/beers", beerRequest);
 
 const AdminBeerCreateView = (props: BeerFormProps) => {
-  let { Alert, getLicenseTypes, refetch } = props
+  let { getLicenseTypes, refetch } = props
   //Dialog form hooks
   const [open, setOpen] = useState(false);
   const handleClickOpen = () => setOpen(true);

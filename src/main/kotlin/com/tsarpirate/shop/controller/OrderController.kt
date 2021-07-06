@@ -13,7 +13,9 @@ import org.springframework.http.ResponseEntity
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.security.core.Authentication
 import org.springframework.web.bind.annotation.*
+import java.time.LocalDate
 import java.util.UUID
+import javax.websocket.server.PathParam
 
 @RestController
 class OrderController(val orderService: OrderService, val beerService: BeerService, val licenseService: LicenseService) {
@@ -62,18 +64,26 @@ class OrderController(val orderService: OrderService, val beerService: BeerServi
 
     }
 
-    @DeleteMapping("/admin/order")
+    @DeleteMapping("/admin/order/{id}")
     @PreAuthorize("hasRole('admin')")
-    fun removeOrders(@RequestBody orderIds: List<UUID>): ResponseEntity<String> {
-        logger.info("Removing ${orderIds.size} orders...")
-        orderIds.forEach { orderService.removeOrder(it) }
-        return ResponseEntity.ok("Closed ${orderIds.size} orders")
+    fun removeOrders(@PathVariable("id") id: String): ResponseEntity<String> {
+        logger.info("Removing ${id}...")
+        orderService.removeOrder(UUID.fromString(id))
+        return ResponseEntity.ok("Deleted $id")
+    }
+
+    @PutMapping("/admin/order/complete/{id}")
+    @PreAuthorize("hasRole('admin')")
+    fun completeOrder(@PathVariable("id") id: String): ResponseEntity<String> {
+        val order = orderService.getOrder(UUID.fromString(id)) ?: return ResponseEntity.badRequest().body("Order $id doesn't exist")
+        return updateOrder(order.copy(dateCompleted = LocalDate.now()))
     }
 
     @PutMapping("/admin/order")
-    fun updateOrder(@RequestBody order: Order) {
+    fun updateOrder(@RequestBody order: Order): ResponseEntity<String> {
         logger.info("Updating ${order.id} ...")
         orderService.updateOrder(order)
+        return ResponseEntity.ok("Successfully updated ${order.id}")
     }
 
     /**

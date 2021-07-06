@@ -4,11 +4,14 @@ import LinearProgress from "@material-ui/core/LinearProgress";
 import { Wrapper } from "./AdminOrderView.style";
 import { AdminOrder, BeerType } from "../interfaces";
 import { get } from "../Http";
-import { DataGrid, GridColDef } from "@material-ui/data-grid";
+import { DataGrid, GridColDef, GridRowSelectedParams } from "@material-ui/data-grid";
 import CustomAppBar from "../CustomAppBar";
 import { useQuery } from "react-query";
 import { XGrid } from '@material-ui/x-grid';
 import { formatPrice, getGlobalIsAdmin, getGlobalToken } from "../../window";
+import { useState } from "react";
+import { Drawer } from "@material-ui/core";
+import AdminOrderDetailsView from "./AdminOrderDetailsView";
 
 function formatBeerForTable(beer: BeerType): string {
   return beer.name + ": " + beer.amount + "x" + beer.size + "ml";
@@ -18,10 +21,22 @@ const getOrders = async (): Promise<AdminOrder[]> =>
   get<AdminOrder[]>("/admin/order");
 
 const AdminOrderView = () => {
-  const { data, isLoading, error } = useQuery<AdminOrder[]>(
+  const { data, isLoading, error, refetch } = useQuery<AdminOrder[]>(
     "AdminOrder",
     getOrders
   );
+
+  const [selected, setSelected] = useState<AdminOrder | undefined>();
+  const [isDetailViewOpen, setDetailViewOpen] = useState(false);
+
+  const toggleDetailView = () => setDetailViewOpen(!isDetailViewOpen);
+
+  const handleRowSelect = (row: GridRowSelectedParams) => {
+    let id = (row.data as AdminOrder).id;
+    let selected = data?.find(beer=> beer.id === id);
+    setSelected(selected);
+    setDetailViewOpen(true);
+  }
 
   const columns: GridColDef[] = [
     { field: 'id', headerName: 'Order №', width: 150 },
@@ -69,7 +84,20 @@ const AdminOrderView = () => {
     <Wrapper>
       <CustomAppBar />
       {/* you can use DataGrid instead of XGrid  */}
-      <DataGrid rows={rows ? rows : []} columns={columns} autoHeight autoPageSize />
+      <DataGrid
+        rows={rows ? rows : []}
+        columns={columns}
+        autoHeight
+        autoPageSize
+        onRowSelected={row => handleRowSelect(row)}
+      />
+      <Drawer
+        anchor="right"
+        open={isDetailViewOpen}
+        onClose={() => toggleDetailView()}
+      >
+        {selected && <AdminOrderDetailsView {...{order: selected, toggleView: toggleDetailView, refetch}} />}
+      </Drawer>
     </Wrapper>
   );
 };

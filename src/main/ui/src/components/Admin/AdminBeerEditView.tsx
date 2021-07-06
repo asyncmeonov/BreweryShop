@@ -28,6 +28,7 @@ import {
 import React from "react";
 import { getGlobalIsAdmin, getGlobalToken } from "../../window";
 import { BeerFormProps } from "../types";
+import { Alert } from "../../Alert";
 
 type EditBeerFormProps = BeerFormProps & {
   selected: AdminBeer | undefined
@@ -36,7 +37,7 @@ type EditBeerFormProps = BeerFormProps & {
 const putBeer = async (beer: AdminBeer) => await put("/admin/beers", beer);
 
 const AdminBeerEditView = (props: EditBeerFormProps) => {
-  let { Alert, getLicenseTypes, refetch, selected } = props
+  let { getLicenseTypes, refetch, selected } = props
     //(Dynamic fields) License models for a beer
     const { data } = useQuery<string[]>("License", getLicenseTypes);
     const [licenseList, setLicenseList] = useState<(string | null)[]>([]);

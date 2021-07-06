@@ -1,9 +1,14 @@
-import { AlertProps } from "@material-ui/lab/Alert"
-
 export type BeerFormProps = {
-    Alert: (props: AlertProps) => JSX.Element,
-    getLicenseTypes: () => Promise<string[]>,
-    refetch: () => {}
-  }
+  getLicenseTypes: () => Promise<string[]>,
+  refetch: () => {}
+}
 
-export {}
+export type PopupProps = {
+  title: string,
+  contentText: string,
+  submitButtonText: string,
+  open: boolean,
+  asyncRequest?: () => any,
+  onClose: () => void
+}
+export { }

@@ -7,7 +7,7 @@ import { formatPrice } from '../../window';
 import { useState } from 'react';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import clsx from 'clsx';
-import { PopupProps } from '../types';
+import { AlertPromptProps } from '../types';
 import { put } from '../Http';
 import { CustomPopup } from '../../Alert';
 import AdminOrderEditView from './AdminOrderEditView';
@@ -55,7 +55,7 @@ const useStyles = makeStyles((theme: Theme) =>
 
 const CompletePopup = (props: { order: AdminOrder, open: boolean, onClose: () => void }) => {
     let { order, onClose, open } = props;
-    let internalProps: PopupProps = {
+    let internalProps: AlertPromptProps = {
         title: `Confirm order complete`,
         contentText: `Do you want to complete ${order.id} placed by ${order.pirateName} on ${order.dateCreated}? This cannot be undone!`,
         submitButtonText: "Yes, Complete Order",

@@ -21,13 +21,12 @@ import {
   FormControlLabel,
   InputLabel,
   NativeSelect,
-  IconButton,
-  Snackbar
+  IconButton
 } from "@material-ui/core";
 import React from "react";
 import { getGlobalIsAdmin, getGlobalToken } from "../../window";
 import { BeerFormProps } from "../types";
-import { Alert } from "../../Alert";
+import { CustomSnackbarAlert } from "../../Alert";
 
 const postBeer = async (beerRequest: AdminBeerRequest) => await post("/admin/beers", beerRequest);
 
@@ -284,14 +283,12 @@ const AdminBeerCreateView = (props: BeerFormProps) => {
           </Button>
         </DialogActions>
       </Dialog>
-      <Snackbar
-        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
-        open={popupOpen} autoHideDuration={6000} onClose={handlePopupClose}>
-        <Alert
-          onClose={handlePopupClose} severity={isError ? "error" : "success"}>
-          {popupMessage}
-        </Alert>
-      </Snackbar>
+      <CustomSnackbarAlert {...{
+        open: popupOpen,
+        onClose: handlePopupClose,
+        severity: (isError ? "error" : "success"),
+        contentText: popupMessage
+      }} />
     </Box>
   );
 };

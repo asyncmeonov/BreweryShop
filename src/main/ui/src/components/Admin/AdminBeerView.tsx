@@ -28,7 +28,7 @@ import AdminBeerCreateView from "./AdminBeerCreateView";
 import { formatPrice, getGlobalIsAdmin, getGlobalToken } from "../../window";
 import AdminBeerEditView from "./AdminBeerEditView";
 import { CustomPopup } from "../../Alert";
-import { PopupProps } from "../types";
+import { AlertPromptProps } from "../types";
 
 const useRowStyles = makeStyles({
   root: {
@@ -59,7 +59,7 @@ const getLicenseTypes = async (): Promise<string[]> => {
 
 const DeletePopup = (props: {row: AdminBeer, open: boolean, onClose: () => void}) => {
   let {row, open, onClose} = props
-  let popupProps: PopupProps = {
+  let popupProps: AlertPromptProps = {
     title: `Deleting ${row.name}`,
     contentText: `You are trying to delete ${row.name} ${row.size}ml. This cannot be undone.`,
     open: open,

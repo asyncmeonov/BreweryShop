@@ -3,12 +3,25 @@ export type BeerFormProps = {
   refetch: () => {}
 }
 
-export type PopupProps = {
-  title: string,
-  contentText: string,
-  submitButtonText: string,
+export type BasePopupProps = {
+  contentText?: string,
   open: boolean,
-  asyncRequest?: () => any,
   onClose: () => void
 }
+
+export type AlertProps = BasePopupProps & {
+  title: string,
+  submitButtonText: string,
+  asyncRequest?: () => any,
+}
+
+export type AlertPromptProps = AlertProps & {
+  asyncRequest?: () => any
+}
+
+export type SnackbarPopupProps = BasePopupProps & {
+  severity: "error" | "success" | "info" | "warning",
+  timeout?: number
+}
+
 export { }

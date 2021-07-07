@@ -13,11 +13,10 @@ import {
     TextField,
     DialogContent,
     DialogActions,
-    Snackbar,
     IconButton
 } from "@material-ui/core";
 import React from "react";
-import { Alert } from "../../Alert";
+import { CustomSnackbarAlert } from "../../Alert";
 import CreateIcon from '@material-ui/icons/Create';
 
 type EditOrderFormProps = {
@@ -117,14 +116,12 @@ const AdminOrderEditView = (props: EditOrderFormProps) => {
                     </Button>
                 </DialogActions>
             </Dialog>
-            <Snackbar
-                anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
-                open={popupOpen} autoHideDuration={6000} onClose={handlePopupClose}>
-                <Alert
-                    onClose={handlePopupClose} severity={isError ? "error" : "success"}>
-                    {popupMessage}
-                </Alert>
-            </Snackbar>
+            <CustomSnackbarAlert {...{
+                open: popupOpen,
+                onClose: handlePopupClose,
+                severity: (isError ? "error" : "success"),
+                contentText: popupMessage
+            }} />
         </Box>
     );
 };

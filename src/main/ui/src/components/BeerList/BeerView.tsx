@@ -14,20 +14,18 @@ import { Wrapper, StyledButton } from "./BeerView.style";
 import { BeerType } from "../interfaces";
 import { get } from "../Http";
 import { getGlobalToken } from "../../window";
+import { useHistory } from "react-router-dom";
 
 const getProducts = async (): Promise<BeerType[]> => get<BeerType[]>("/beers")
 
 const BeerView = () => {
+  const history = useHistory();
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [cartBeers, setCartBeers] = useState([] as BeerType[]);
   const { data, isLoading, error } = useQuery<BeerType[]>("beers", getProducts);
 
   if (getGlobalToken() === undefined) {
-    return (
-      <Wrapper>
-        <div>Session has expired. Go back to the <a href="/">homepage</a></div>
-      </Wrapper>
-    );
+    history.push({pathname:"/", state: { hasExpired: true}})
   }
 
   const getTotalItems = (beers: BeerType[]) =>
@@ -62,7 +60,7 @@ const BeerView = () => {
       }, [] as BeerType[])
     );
   };
-  if (isLoading) return <LinearProgress />;
+  if (isLoading && !data) return <LinearProgress />;
   if (error) return <div> Something went wrong... </div>;
   return (
     <div>

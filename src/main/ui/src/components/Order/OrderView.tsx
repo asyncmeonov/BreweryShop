@@ -42,11 +42,7 @@ const OrderView = () => {
   }
 
   if (getGlobalToken() === undefined) {
-    return (
-      <Wrapper>
-        <div>You don't have a valid license. Go back to the <a href="/">homepage</a></div>
-      </Wrapper>
-    );
+    history.push({ pathname: "/", state: { hasExpired: true } })
   }
 
   if(message) {
@@ -62,8 +58,8 @@ const OrderView = () => {
       <Container maxWidth="sm">
         <hr/>
         {
-          orderedBeers.map(beer => (
-            <div>
+          orderedBeers.map((beer, i) => (
+            <div key={`order-beer-${i}`}>
               x{beer.amount} of {beer.name} {beer.size}ml ({(beer.price / 100).toFixed(2)} bgn each)
             </div>
           ))

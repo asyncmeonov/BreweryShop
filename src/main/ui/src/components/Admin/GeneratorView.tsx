@@ -25,6 +25,7 @@ import {
   GridRowSelectedParams,
 } from "@material-ui/data-grid";
 import { getGlobalIsAdmin, getGlobalToken } from "../../window";
+import { useHistory } from "react-router-dom";
 
 type LicenseRow = {
   id: string
@@ -50,15 +51,16 @@ const GeneratorView = () => {
   const { data, isLoading, error, refetch } = useQuery<License[]>("License", getLicenses);
   const [type, setType] = useState("");
   const [expiryDate, setExpiryDate] = useState("");
+  const history = useHistory();
 
   const handleClick = async () => {
     let response = postLicense(type, expiryDate);
-    if(await response) refetch();
+    if (await response) refetch();
   };
 
   const handleDelete = async (type: string) => {
     let response = deleteLicense(type);
-    if(await response) refetch();
+    if (await response) refetch();
   }
 
   const [selectedRows, setSelectedRows] =
@@ -71,16 +73,9 @@ const GeneratorView = () => {
   ];
 
   if (getGlobalToken() === undefined || !getGlobalIsAdmin()) {
-    return (
-      <Wrapper>
-        <div>
-          You don't have a valid license. Go back to the{" "}
-          <a href="/">homepage</a>
-        </div>
-      </Wrapper>
-    );
+    history.push({ pathname: "/", state: { hasExpired: true } })
   }
-  if (isLoading) return <LinearProgress />;
+  if (isLoading && !data) return <LinearProgress />;
   if (error) return <div> Something went wrong... {error} </div>;
 
   const rows = data?.map(row => {

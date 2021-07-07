@@ -24,14 +24,13 @@ import {
   IconButton
 } from "@material-ui/core";
 import React from "react";
-import { getGlobalIsAdmin, getGlobalToken } from "../../window";
 import { BeerFormProps } from "../types";
 import { CustomSnackbarAlert } from "../../Alert";
 
 const postBeer = async (beerRequest: AdminBeerRequest) => await post("/admin/beers", beerRequest);
 
 const AdminBeerCreateView = (props: BeerFormProps) => {
-  let { getLicenseTypes, refetch } = props
+  let { getLicenseTypes, refetch } = props;
   //Dialog form hooks
   const [open, setOpen] = useState(false);
   const handleClickOpen = () => setOpen(true);
@@ -86,14 +85,6 @@ const AdminBeerCreateView = (props: BeerFormProps) => {
     const newList = licenseList.map((old, index) => index === key ? null : old);
     setLicenseList(newList);
   };
-
-  if (getGlobalToken() === undefined || !getGlobalIsAdmin()) {
-    return (
-      <div>
-        You don't have a valid license. Go back to the <a href="/">homepage</a>
-      </div>
-    );
-  }
 
   return (
     <Box>

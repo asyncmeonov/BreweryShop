@@ -12,6 +12,7 @@ import { formatPrice, getGlobalIsAdmin, getGlobalToken } from "../../window";
 import { useState } from "react";
 import { Drawer } from "@material-ui/core";
 import AdminOrderDetailsView from "./AdminOrderDetailsView";
+import { useHistory } from "react-router-dom";
 
 function formatBeerForTable(beer: BeerType): string {
   return beer.name + ": " + beer.amount + "x" + beer.size + "ml";
@@ -28,6 +29,7 @@ const AdminOrderView = () => {
 
   const [selected, setSelected] = useState<AdminOrder | undefined>();
   const [isDetailViewOpen, setDetailViewOpen] = useState(false);
+  const history = useHistory();
 
   const toggleDetailView = () => setDetailViewOpen(!isDetailViewOpen);
 
@@ -52,15 +54,9 @@ const AdminOrderView = () => {
   ];
 
   if (getGlobalToken() === undefined || !getGlobalIsAdmin()) {
-    return (
-      <Wrapper>
-        <div>
-          You don't have a valid license. Go back to the <a href="/">homepage</a>
-        </div>
-      </Wrapper>
-    );
+    history.push({ pathname: "/", state: { hasExpired: true } })
   }
-  if (isLoading) return <LinearProgress />;
+  if (isLoading && !data) return <LinearProgress />;
   if (error) return <div> Something went wrong... {error} </div>;
 
   const rows = data?.map(row => {

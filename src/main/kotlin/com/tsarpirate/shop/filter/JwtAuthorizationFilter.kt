@@ -2,6 +2,8 @@ package com.tsarpirate.shop.filter
 
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
+import com.auth0.jwt.exceptions.JWTDecodeException
+import com.auth0.jwt.exceptions.TokenExpiredException
 import com.tsarpirate.shop.configuration.SecurityConstants.HEADER_STRING
 import com.tsarpirate.shop.configuration.SecurityConstants.SECRET
 import com.tsarpirate.shop.configuration.SecurityConstants.TOKEN_PREFIX
@@ -38,6 +40,7 @@ class JwtAuthorizationFilter(authManager: AuthenticationManager): BasicAuthentic
     private fun getAuthentication(request: HttpServletRequest): UsernamePasswordAuthenticationToken? {
         val token = request.getHeader(HEADER_STRING)
 
+        try {
         if (token != null) {
             // parse the token.
             val user = JWT.require(Algorithm.HMAC512(SECRET.toByteArray()))
@@ -51,5 +54,12 @@ class JwtAuthorizationFilter(authManager: AuthenticationManager): BasicAuthentic
             return null
         }
         return null
+        } catch (tee: TokenExpiredException){
+            logger.error(tee)
+            return null
+        } catch (jde: JWTDecodeException){
+            logger.error("Malformed token $jde")
+            return null
+        }
     }
 }

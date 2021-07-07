@@ -29,6 +29,7 @@ import { formatPrice, getGlobalIsAdmin, getGlobalToken } from "../../window";
 import AdminBeerEditView from "./AdminBeerEditView";
 import { CustomPopup } from "../../Alert";
 import { AlertPromptProps } from "../types";
+import { useHistory } from "react-router-dom";
 
 const useRowStyles = makeStyles({
   root: {
@@ -57,14 +58,14 @@ const getLicenseTypes = async (): Promise<string[]> => {
   return (await response).map((license) => license.type);
 };
 
-const DeletePopup = (props: {row: AdminBeer, open: boolean, onClose: () => void}) => {
-  let {row, open, onClose} = props
+const DeletePopup = (props: { row: AdminBeer, open: boolean, onClose: () => void }) => {
+  let { row, open, onClose } = props
   let popupProps: AlertPromptProps = {
     title: `Deleting ${row.name}`,
     contentText: `You are trying to delete ${row.name} ${row.size}ml. This cannot be undone.`,
     open: open,
     onClose: onClose,
-    asyncRequest: () =>remove("/admin/beers/" + row.id, null),
+    asyncRequest: () => remove("/admin/beers/" + row.id, null),
     submitButtonText: "Delete Beer"
   }
 
@@ -152,6 +153,7 @@ const getBeers = async (): Promise<AdminBeer[]> =>
   get<AdminBeer[]>("/admin/beers");
 
 const AdminBeerView = () => {
+  const history = useHistory();
   const { data, isLoading, error, refetch } = useQuery<AdminBeer[]>(
     "AdminBeer",
     getBeers
@@ -166,19 +168,14 @@ const AdminBeerView = () => {
   }
   const isSelected = (beer: AdminBeer) => selected !== undefined && selected.id === beer.id;
 
-  if (isLoading) return <LinearProgress />;
-  if (error) return <div> Something went wrong... {error} </div>;
 
   if (getGlobalToken() === undefined || !getGlobalIsAdmin()) {
-    return (
-      <Wrapper>
-        <div>
-          You don't have a valid license. Go back to the{" "}
-          <a href="/">homepage</a>
-        </div>
-      </Wrapper>
-    );
+    history.push({ pathname: "/", state: { hasExpired: true } })
   }
+
+  if (isLoading && !data) return <LinearProgress />;
+  if (error) return <div> Something went wrong... {error} </div>;
+
 
   return (
     <Wrapper>

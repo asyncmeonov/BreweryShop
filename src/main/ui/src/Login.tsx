@@ -7,6 +7,7 @@ import { useState } from "react";
 import { LoginToken } from "./components/interfaces";
 import { get } from "./components/Http";
 import { setGlobalIsAdmin, setGlobalLicense, setGlobalToken } from "./window";
+import { CustomSnackbarAlert } from "./Alert";
 
 const licenseInputStyle: CSSProperties = {
   width: "40%",
@@ -18,11 +19,13 @@ const errorStyle: CSSProperties = {
 };
 
 const Login = () => {
+  const [openPopup, setOpenPopup] = useState(false);
   const [license, setLicense] = useState("");
   const [token, setToken] = useState("");
   const [isAdmin, setIsAdmin] = useState<boolean | undefined>(undefined);
   const [error, setError] = useState("");
   const history = useHistory();
+  const [hasSessionExpired, setSessionExpired] = useState(history.location.state !== undefined && (history.location.state as {hasExpired:boolean}).hasExpired);
 
   const handleClick = async () => {
     let licenseCode = (
@@ -46,6 +49,11 @@ const Login = () => {
     history.push("/beers");
   }
 
+  if (hasSessionExpired) {
+    setSessionExpired(false);
+    setOpenPopup(true);
+  }
+
   return (
     <Wrapper>
       <TextField
@@ -56,6 +64,12 @@ const Login = () => {
       ></TextField>
       <Button onClick={ () => {handleClick()}}>Seek Legal Advice</Button>
       {error && <div style={errorStyle}>{error}</div>}
+      <CustomSnackbarAlert {...{
+        open: openPopup,
+        onClose: () => {setOpenPopup(false)},
+        severity: "info",
+        contentText: "Session has expired. Please log back in."
+      }} />
     </Wrapper>
   );
 };

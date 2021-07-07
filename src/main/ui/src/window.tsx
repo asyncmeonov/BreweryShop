@@ -24,7 +24,7 @@ const get = (key: string) => {
         window.sessionStorage.removeItem(key)
       }
   }
-  return null
+  return undefined;
 }
 
 export const setGlobalToken = (token: string) => set("token", token);

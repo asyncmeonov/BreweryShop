@@ -40,6 +40,7 @@ class BeerController(val beerService: BeerService, val licenseService: LicenseSe
     }
 
     @PostMapping("/admin/beers")
+    @PreAuthorize("hasRole('admin')")
     fun createBeer(@RequestBody beer: BeerRequest): ResponseEntity<Any> {
         if (beer.priceModels.isEmpty() && !beer.availableByDefault) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
@@ -72,8 +73,8 @@ class BeerController(val beerService: BeerService, val licenseService: LicenseSe
     @PreAuthorize("hasRole('admin')")
     fun deleteBeer(@PathVariable("id") id: String): ResponseEntity<String> {
         val beer = beerService.getBeerById(UUID.fromString(id))
-        if (beer == null) return ResponseEntity.badRequest()
-            .body("Could not find $id to be Removed. Make sure you have included the id field of the beer you want deleted. ")
+            ?: return ResponseEntity.badRequest()
+                .body("Could not find $id to be Removed. Make sure you have included the id field of the beer you want deleted. ")
         logger.info("Removing ${beer.name}...")
         beerService.removeBeer(beer.id)
         return ResponseEntity.ok("Successfully removed ${beer.name}")

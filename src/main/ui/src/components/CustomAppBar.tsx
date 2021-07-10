@@ -67,6 +67,15 @@ const CustomAppBar = (props?: { button?: JSX.Element}) => {
             License Management
           </Typography>
         )}
+         {getGlobalIsAdmin() && (
+          <Typography
+            variant="h6"
+            onClick={() => history.push("/admin/delivery")}
+            className={classes.title}
+          >
+            Deliveries
+          </Typography>
+        )}
         {props && (
           props.button
         )

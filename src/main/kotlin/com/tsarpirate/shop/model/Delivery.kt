@@ -16,7 +16,9 @@ data class Delivery(
     val distributor: String?,
     val maxCapacity: Int,
     val bookedOrders: List<UUID>
-)
+) {
+    fun isFull() = bookedOrders.size == maxCapacity
+}
 
 data class DeliveryRequest(
     val deliveryDate: LocalDate,

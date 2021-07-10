@@ -10,12 +10,19 @@ import org.springframework.http.ResponseEntity
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.security.core.Authentication
 import org.springframework.web.bind.annotation.*
+import java.time.LocalDate
 import java.util.*
 
 @RestController
-class DeliveryController(val deliveryService: DeliveryService, val orderService: OrderService) {
+class DeliveryController(val deliveryService: DeliveryService) {
 
     private val logger: Logger = LoggerFactory.getLogger(DeliveryController::class.java)
+
+    @GetMapping("/delivery")
+    fun getDeliveryDates(auth: Authentication): List<LocalDate> {
+        logger.info("Retrieving all delivery dates...")
+        return deliveryService.getDeliveries().map { it.deliveryDate }
+    }
 
     @GetMapping("/admin/delivery")
     @PreAuthorize("hasRole('admin')")
@@ -30,19 +37,6 @@ class DeliveryController(val deliveryService: DeliveryService, val orderService:
         logger.info("Creating a new delivery for ${delivery.deliveryDate}...")
         deliveryService.addDelivery(delivery)
         return ResponseEntity.ok("Successfully created delivery on ${delivery.deliveryDate}")
-    }
-
-    @PutMapping("/admin/delivery/{deliveryId}/{orderId}")
-    @PreAuthorize("hasRole('admin')")
-    fun addOrderToDelivery(
-        @PathVariable("deliveryId") deliveryId: String,
-        @PathVariable("orderId") orderId: String
-    ): ResponseEntity<String> {
-        val orderUUID = UUID.fromString(orderId)
-        val deliveryUUID = UUID.fromString(deliveryId)
-        if (orderService.getOrder(orderUUID) == null) return ResponseEntity.badRequest()
-            .body("Could not find order $orderId to be added. Make sure that the order exists.")
-        return deliveryService.addOrderToDelivery(deliveryUUID, orderUUID)
     }
 
     @PutMapping("/admin/delivery")

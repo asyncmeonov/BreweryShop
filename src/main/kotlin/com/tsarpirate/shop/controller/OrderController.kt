@@ -4,6 +4,7 @@ import com.tsarpirate.shop.model.Beer
 import com.tsarpirate.shop.model.Order
 import com.tsarpirate.shop.model.OrderRequest
 import com.tsarpirate.shop.service.BeerService
+import com.tsarpirate.shop.service.DeliveryService
 import com.tsarpirate.shop.service.LicenseService
 import com.tsarpirate.shop.service.OrderService
 import org.slf4j.Logger
@@ -14,11 +15,17 @@ import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.security.core.Authentication
 import org.springframework.web.bind.annotation.*
 import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 import java.util.UUID
 import javax.websocket.server.PathParam
 
 @RestController
-class OrderController(val orderService: OrderService, val beerService: BeerService, val licenseService: LicenseService) {
+class OrderController(
+    val orderService: OrderService,
+    val beerService: BeerService,
+    val licenseService: LicenseService,
+    val deliveryService: DeliveryService
+) {
 
     private val logger: Logger = LoggerFactory.getLogger(OrderController::class.java)
 
@@ -32,13 +39,23 @@ class OrderController(val orderService: OrderService, val beerService: BeerServi
     /**
      * 1. Get the beers requested from the beerService
      * 2. Validate that there are enough left (throw error if requesting non-existent or too much beers)
-     * 3. Save order with the orderService
+     * 3. Validate that the delivery will have room for this order
+     * 4. Save order with the orderService
+     * 5. Save the order ID to the delivery
      * 4. Subtract the booked beers from the beers left
+     *
+     * TODO: test this pls
      */
     @Suppress("UNCHECKED_CAST")
     @PostMapping("/order")
-    fun addOrder(@RequestBody orderRequest: OrderRequest, auth: Authentication): ResponseEntity<String> {
+    fun addOrder(
+        @RequestBody orderRequest: OrderRequest,
+        @PathParam("delivery") delivery: String? = null,
+        auth: Authentication
+    ): ResponseEntity<String> {
         return try {
+            val dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy")
+            val deliveryDate = if (delivery != null) LocalDate.parse(delivery, dtf) else null
             val license = licenseService.getLicenseByValue(auth.principal as String)
                 ?: return ResponseEntity.badRequest().body("Invalid license.")
 
@@ -50,6 +67,9 @@ class OrderController(val orderService: OrderService, val beerService: BeerServi
 
             logger.info("Creating order for ${orderRequest.pirateName}...")
             val order = orderService.addOrder(orderRequest, beersAndAmount, license)
+
+            deliveryService.distributeOrderForDelivery(deliveryDate, order)
+
             val updated =
                 beersAndAmount.map { (amount, beer) -> beer.copy(amountAvailable = beer.amountAvailable - amount) }
             updated.forEach { beerService.updateBeer(it) }
@@ -75,7 +95,8 @@ class OrderController(val orderService: OrderService, val beerService: BeerServi
     @PutMapping("/admin/order/complete/{id}")
     @PreAuthorize("hasRole('admin')")
     fun completeOrder(@PathVariable("id") id: String): ResponseEntity<String> {
-        val order = orderService.getOrder(UUID.fromString(id)) ?: return ResponseEntity.badRequest().body("Order $id doesn't exist")
+        val order = orderService.getOrder(UUID.fromString(id)) ?: return ResponseEntity.badRequest()
+            .body("Order $id doesn't exist")
         return updateOrder(order.copy(dateCompleted = LocalDate.now()))
     }
 

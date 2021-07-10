@@ -5,6 +5,7 @@ import Login from "./Login";
 import OrderView from "./components/Order/OrderView";
 import AdminOrderView from "./components/Admin/AdminOrderView";
 import AdminBeerView from './components/Admin/AdminBeerView';
+import DeliveryView from './components/Delivery/DeliveryView';
 
 const App = () => {
   return (
@@ -15,6 +16,7 @@ const App = () => {
       <Route exact path='/admin/order' component={AdminOrderView}/>
       <Route exact path='/admin/generate' component={GeneratorView}/>
       <Route exact path='/admin/beers' component={AdminBeerView}/>
+      <Route exact path='/admin/delivery' component={DeliveryView}/>
     </Switch>
   )
 };

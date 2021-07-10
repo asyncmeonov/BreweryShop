@@ -58,4 +58,15 @@ export interface AdminOrder extends Order {
     notes?: string
 }
 
+export interface DeliveryRequest {
+    deliveryDate: Date,
+    maxCapacity: number
+}
+
+export interface Delivery extends DeliveryRequest {
+    id: string,
+    distributor?: string,
+    bookedOrders: string[]
+}
+
 export { }

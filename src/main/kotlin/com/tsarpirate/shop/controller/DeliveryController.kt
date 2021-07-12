@@ -29,7 +29,7 @@ class DeliveryController(val deliveryService: DeliveryService) {
     @GetMapping("/delivery")
     fun getDeliveryDates(auth: Authentication): List<LocalDate> {
         logger.info("Retrieving all delivery dates...")
-        return deliveryService.getDeliveries().map { it.deliveryDate }
+        return deliveryService.getDeliveries().filter { !it.isFull() }.map { it.deliveryDate }
     }
 
     @GetMapping("/admin/delivery")

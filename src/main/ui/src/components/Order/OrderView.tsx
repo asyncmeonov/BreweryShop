@@ -13,7 +13,7 @@ import { Controller, useForm } from "react-hook-form";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { useQuery } from "react-query";
-import { parseISO } from "date-fns";
+import { addDays, parseISO } from "date-fns";
 import { CustomSnackbarAlert } from "../../Alert";
 
 
@@ -169,6 +169,7 @@ const OrderView = () => {
                 disabled={!isDelivery}
                 required={isDelivery}
                 selected={deliveryDate}
+                minDate={addDays(new Date(), 2)}
                 onChange={(date) => setDeliveryDate(date as Date | undefined)}
                 includeDates={parseDates(data)}
                 dateFormat="dd/MM/yyyy"

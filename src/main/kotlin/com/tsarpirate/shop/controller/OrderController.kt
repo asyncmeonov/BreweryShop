@@ -9,6 +9,9 @@ import com.tsarpirate.shop.service.LicenseService
 import com.tsarpirate.shop.service.OrderService
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import org.springframework.core.io.InputStreamResource
+import org.springframework.core.io.Resource
+import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.access.prepost.PreAuthorize
@@ -17,6 +20,7 @@ import org.springframework.web.bind.annotation.*
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.UUID
+import javax.servlet.http.HttpServletResponse
 import javax.websocket.server.PathParam
 
 @RestController
@@ -113,6 +117,31 @@ class OrderController(
         logger.info("Updating ${order.id} ...")
         orderService.updateOrder(order)
         return ResponseEntity.ok("Successfully updated ${order.id}")
+    }
+
+    @GetMapping("/admin/order/delivery/export-csv/{deliveryId}", produces = ["text/csv"])
+    @PreAuthorize("hasRole('admin')")
+    fun exportOrdersForDeliveryToCSV(
+        @PathVariable("deliveryId") deliveryId: String,
+        response: HttpServletResponse
+    ): ResponseEntity<Resource> {
+        logger.info("Exporting $deliveryId ...")
+        val delivery = deliveryService.getDeliveryById(UUID.fromString(deliveryId))
+            ?: throw IllegalArgumentException("Delivery with id $deliveryId doesn't exist.")
+
+        val fileInputStream = InputStreamResource(orderService.getAsCsv(delivery.bookedOrders))
+
+        // setting HTTP headers
+        val headers = HttpHeaders()
+        headers.set(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=test.csv")
+        // defining the custom Content-Type
+        headers.set(HttpHeaders.CONTENT_TYPE, "text/csv")
+
+        return ResponseEntity(
+            fileInputStream,
+            headers,
+            HttpStatus.OK
+        )
     }
 
     /**

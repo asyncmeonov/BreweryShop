@@ -5,8 +5,13 @@ const base = "";
 async function get<T>(url: string): Promise<T> {
   let headers = new Headers({ "Content-Type": "application/json" });
   headers.append("Authorization", "Bearer " + getGlobalToken());
-
   return await (await fetch(base + url, { headers: headers })).json();
+}
+
+async function getCsv(url: string): Promise<Response> {
+  let headers = new Headers({ "Accept": "text/csv" });
+  headers.append("Authorization", "Bearer " + getGlobalToken());
+  return (await fetch(base + url, { headers: headers }));
 }
 
 //returns a response, should be handled in caller
@@ -43,4 +48,4 @@ async function put(url: string, content: any): Promise<Response> {
   }));
 }
 
-export { get, post, remove, put };
+export { get, getCsv, post, remove, put };

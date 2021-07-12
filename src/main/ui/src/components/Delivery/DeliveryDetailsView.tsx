@@ -1,6 +1,6 @@
 import LinearProgress from "@material-ui/core/LinearProgress";
 import { AdminOrder, Delivery } from '../interfaces';
-import { Box, Button, Collapse, IconButton, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@material-ui/core';
+import { Box, Button, Collapse, Container, IconButton, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@material-ui/core';
 import { Typography } from '@material-ui/core';
 import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
 import KeyboardArrowDownIcon from "@material-ui/icons/KeyboardArrowDown";
@@ -8,7 +8,7 @@ import KeyboardArrowUpIcon from "@material-ui/icons/KeyboardArrowUp";
 import { formatPrice } from '../../window';
 import { useState } from 'react';
 import React from 'react';
-import { get } from '../Http';
+import { get, getCsv, post } from '../Http';
 import { useQuery } from 'react-query';
 
 type RowProps = {
@@ -37,6 +37,19 @@ const useStyles = makeStyles((theme: Theme) =>
 const getOrdersForDelivery = async (deliveryId: string): Promise<AdminOrder[]> =>
     get<AdminOrder[]>("/admin/order/" + deliveryId);
 
+const downloadAsCsv = async (delivery: Delivery) =>
+    getCsv("/admin/order/delivery/export-csv/" + delivery.id)
+        .then(csv => {
+            csv.blob().then(blob => {
+                const url = window.URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.setAttribute('download', delivery.deliveryDate+"_"+delivery.id+".csv");
+                document.body.appendChild(link);
+                link.click();
+            })
+
+        });
 
 function Row(props: RowProps) {
     const { row } = props;
@@ -135,14 +148,14 @@ const DeliveryDetails = (props: { delivery: Delivery, toggleView: () => void }) 
         "AdminOrder[]",
         () => getOrdersForDelivery(delivery.id)
     );
-    const { delivery} = props;
+    const { delivery } = props;
     const classes = useStyles();
 
     if (isLoading && !data) return <LinearProgress />;
     if (error) return <div> Something went wrong... {error} </div>;
 
     return (
-        <Box>
+        <Container>
             <Typography color="textSecondary">{delivery.id}</Typography>
 
             <Button
@@ -150,7 +163,7 @@ const DeliveryDetails = (props: { delivery: Delivery, toggleView: () => void }) 
                 disableElevation
                 variant="contained"
                 // eslint-disable-next-line eqeqeq
-                onClick={() => { }} //TODO
+                onClick={() => { downloadAsCsv(delivery) }}
             >Export Order as CSV
             </Button>
 
@@ -168,7 +181,7 @@ const DeliveryDetails = (props: { delivery: Delivery, toggleView: () => void }) 
             </Box>
 
             <DeliveryOrderTable {...{ data }} />
-        </Box>
+        </Container>
     )
 }
 

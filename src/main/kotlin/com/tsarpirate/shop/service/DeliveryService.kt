@@ -4,11 +4,16 @@ import com.tsarpirate.shop.model.Delivery
 import com.tsarpirate.shop.model.DeliveryRequest
 import com.tsarpirate.shop.model.Order
 import com.tsarpirate.shop.repository.DeliveryRepository
+import org.apache.commons.csv.CSVFormat
+import org.apache.commons.csv.CSVPrinter
 import org.apache.coyote.Response
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Service
 import org.springframework.web.client.HttpClientErrorException
+import java.io.ByteArrayInputStream
+import java.io.ByteArrayOutputStream
+import java.io.PrintWriter
 import java.time.LocalDate
 import java.util.UUID
 
@@ -60,10 +65,6 @@ class DeliveryService(private val deliveryRepo: DeliveryRepository) {
     fun updateDelivery(delivery: Delivery) = deliveryRepo.save(delivery)
 
     fun removeDelivery(id: UUID) = deliveryRepo.deleteById(id)
-
-    fun getAsCsv(deliveryIds: List<UUID>) {
-        TODO()
-    }
 
     private fun validateDeliveriesForDate(deliveryDate: LocalDate, deliveries: List<Delivery>) {
         when {

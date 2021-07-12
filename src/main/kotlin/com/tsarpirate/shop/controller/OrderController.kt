@@ -36,6 +36,14 @@ class OrderController(
         return orderService.getOrders()
     }
 
+    @GetMapping("/admin/order/{deliveryId}")
+    @PreAuthorize("hasRole('admin')")
+    fun getOrdersForDelivery(@PathVariable("deliveryId") deliveryId: String): List<Order> {
+        val delivery = deliveryService.getDeliveryById(UUID.fromString(deliveryId))
+            ?: throw IllegalArgumentException("Delivery $deliveryId doesn't exist.")
+        return delivery.bookedOrders.mapNotNull { orderService.getOrder(it) }
+    }
+
     /**
      * 1. Get the beers requested from the beerService
      * 2. Validate that there are enough left (throw error if requesting non-existent or too much beers)

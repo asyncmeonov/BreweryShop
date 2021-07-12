@@ -1,17 +1,23 @@
 //Components
 import LinearProgress from "@material-ui/core/LinearProgress";
 //styles
-import { AdminOrder, Delivery, DeliveryRequest } from "../interfaces";
+import { Delivery, DeliveryRequest } from "../interfaces";
 import { get, post } from "../Http";
 import { DataGrid, GridColDef, GridRowSelectedParams } from "@material-ui/data-grid";
 import CustomAppBar from "../CustomAppBar";
 import { useQuery } from "react-query";
 import { getGlobalIsAdmin, getGlobalToken } from "../../window";
 import { useState } from "react";
-import { Box, Button, Drawer, FormControl, FormHelperText, Input, InputLabel, TextField } from "@material-ui/core";
+import { Box, Button, Drawer, FormControl, FormHelperText, Input, InputLabel, makeStyles, TextField } from "@material-ui/core";
 import { useHistory } from "react-router-dom";
+import DeliveryDetails from "./DeliveryDetailsView";
 
-
+const useStyles = makeStyles({
+    paper: {
+      width: "75%"
+    }
+  });
+  
 const getDeliveries = async (): Promise<Delivery[]> =>
     get<Delivery[]>("/admin/delivery");
 
@@ -19,6 +25,7 @@ const postDelivery = async (req: DeliveryRequest) =>
     await post("/admin/delivery/", req);
 
 const DeliveryView = () => {
+    const styles = useStyles();
     const { data, isLoading, error, refetch } = useQuery<Delivery[]>(
         "Delivery",
         getDeliveries
@@ -49,7 +56,7 @@ const DeliveryView = () => {
         { field: 'deliveryDate', headerName: 'Date to deliver', width: 150 },
         { field: 'distributor', headerName: 'Distributor Name', width: 150 },
         { field: 'maxCapacity', headerName: 'Capacity', width: 150 },
-        { field: "bookedOrders", headerName: "Orders", width: 300 }
+        { field: "bookedOrders", headerName: "Orders", width: 1000 }
     ];
 
     if (getGlobalToken() === undefined || !getGlobalIsAdmin()) {
@@ -81,12 +88,13 @@ const DeliveryView = () => {
                         onRowSelected={row => handleRowSelect(row)}
                     />
                     <Drawer
+                        classes={{ paper: styles.paper }}
                         anchor="right"
                         open={isDetailViewOpen}
                         onClose={() => toggleDetailView()}
                     >
+                        {selected && <DeliveryDetails {...{ delivery: selected, toggleView: toggleDetailView }} />}
                     </Drawer>
-                    {/* TODO: detail view for ordered deliveries */}
                 </Box>
                 <Box marginRight="15px">
                     <FormControl>

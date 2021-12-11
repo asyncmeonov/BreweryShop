@@ -20,8 +20,9 @@ class UserDetailsLicense(private val license: License) : UserDetails {
 
     override fun getUsername(): String = user.username
 
+    //Date is inclusive. I.e. if the expiry date is 21.05, the license becomes invalid on the 22.05
     override fun isAccountNonExpired(): Boolean {
-       return if (license.expiryDate == null) true else LocalDate.now().isBefore(license.expiryDate) //TODO test
+       return if (license.expiryDate == null) true else LocalDate.now().isBefore(license.expiryDate.plusDays(1))
     }
 
     override fun isAccountNonLocked(): Boolean = user.isAccountNonLocked

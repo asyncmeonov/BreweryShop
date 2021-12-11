@@ -34,6 +34,10 @@ const Login = () => {
 
     try{
       let response = await get<LoginToken>("/login/" + licenseCode)
+      console.log(response)
+      if (response.error !== undefined) {
+        throw Error()
+      }
       setToken(response.token);
       setLicense(response.license);
       setIsAdmin(response.isAdmin);

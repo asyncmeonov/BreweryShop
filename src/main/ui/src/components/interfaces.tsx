@@ -39,7 +39,8 @@ export interface License extends BaseLicense {
 
 export interface LoginToken extends BaseLicense {
     token: string,
-    isAdmin: boolean
+    isAdmin: boolean,
+    error: string
 }
 
 export interface Order {
